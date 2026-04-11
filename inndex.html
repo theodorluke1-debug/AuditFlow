@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QueryLogic SaaS Core</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+        // CONFIGURATION (Aus deinem Screenshot übernommen)
+        const SUPABASE_URL = 'https://hqzudwrvfjyqzsdmzxfy.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'sb_publishable_x...'; // DEIN KEY HIER EINSETZEN
+        
+        // KORREKTE MODEL CHAIN (Stand April 2026)
+        const MODEL_CHAIN = [
+            'gemini-2.0-flash',      // Das aktuelle Standard-Modell
+            'gemini-1.5-flash',      // Stabiler Fallback
+            'gemini-1.5-pro'         // High-End Fallback
+        ];
+
+        const S = {
+            loading: false,
+            error: null,
+            result: null
+        };
+
+        async function callGemini(prompt, key, modelIndex = 0) {
+            if (modelIndex >= MODEL_CHAIN.length) throw new Error("All models failed.");
+            
+            const model = MODEL_CHAIN[modelIndex];
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+
+                if (response.status === 429 || response.status === 404) {
+                    console.warn(`Model ${model} failed, trying next...`);
+                    return callGemini(prompt, key, modelIndex + 1);
+                }
+
+                const data = await response.json();
+                return JSON.parse(data.candidates[0].content.parts[0].text);
+            } catch (e) {
+                return callGemini(prompt, key, modelIndex + 1);
+            }
+        }
+
+        window.runAudit = async () => {
+            const url = document.getElementById('urlInput').value;
+            const key = document.getElementById('apiKey').value;
+            const output = document.getElementById('output');
+            const btn = document.getElementById('btn');
+
+            btn.disabled = true;
+            btn.innerText = "Processing...";
+            
+            try {
+                const prompt = `Analyze SEO and Performance for ${url}. Return JSON: {"seo": score, "perf": score, "tips": ["tip1", "tip2"]}`;
+                const data = await callGemini(prompt, key);
+                output.innerText = JSON.stringify(data, null, 2);
+            } catch (err) {
+                output.innerText = "Fatal Error: " + err.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Run Audit";
+            }
+        };
+    </script>
+    <style>
+        body { background: #0a0a0a; color: #fff; font-family: 'JetBrains Mono', monospace; }
+        .card { background: #111; border: 1px solid #222; border-radius: 12px; }
+    </style>
+</head>
+<body class="p-10 flex flex-col items-center">
+    <div class="w-full max-w-2xl card p-8">
+        <h1 class="text-xl font-bold mb-6 tracking-tighter uppercase">QueryLogic Debug Mode</h1>
+        
+        <div class="space-y-4">
+            <input id="urlInput" type="url" placeholder="https://example.com" class="w-full bg-black border border-zinc-800 p-3 rounded">
+            <input id="apiKey" type="password" placeholder="Gemini API Key" class="w-full bg-black border border-zinc-800 p-3 rounded">
+            <button id="btn" onclick="runAudit()" class="w-full bg-white text-black font-bold p-3 hover:bg-zinc-200">RUN AUDIT</button>
+        </div>
+
+        <pre id="output" class="mt-8 p-4 bg-black border border-zinc-900 text-xs text-zinc-400 overflow-auto max-h-64">Terminal output will appear here...</pre>
+    </div>
+</body>
+</html>

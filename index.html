@@ -86,10 +86,10 @@
           Deep Audit: SEO‑Protokoll, Performance‑Last, Sicherheits‑Header — ein Report, den Sie 1:1 an Kund:innen weitergeben können.
         </p>
         <div class="mt-10 flex flex-col sm:flex-row gap-4">
-          <button type="button" id="heroCtaPrimary" class="inline-flex items-center justify-center gap-2 rounded-xl bg-lime text-void px-8 py-4 text-base font-semibold hover:brightness-95 transition shadow-[0_0_40px_-8px_rgba(200,241,53,0.5)]">
+          <a href="auditflow.html" id="heroCtaPrimary" class="inline-flex items-center justify-center gap-2 rounded-xl bg-lime text-void px-8 py-4 text-base font-semibold hover:brightness-95 transition shadow-[0_0_40px_-8px_rgba(200,241,53,0.5)] no-underline">
             <i data-lucide="zap" class="w-5 h-5"></i>
             Kostenlosen Audit starten
-          </button>
+          </a>
           <a href="#features" class="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 px-8 py-4 text-base font-medium text-white hover:bg-zinc-900/50 transition">
             <i data-lucide="layers" class="w-5 h-5 text-zinc-400"></i>
             Funktionen
@@ -160,7 +160,7 @@
               <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-lime shrink-0"></i>5 Deep Audits / Monat</li>
               <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-lime shrink-0"></i>PDF / Druck</li>
             </ul>
-            <button type="button" class="mt-8 w-full py-3 rounded-xl border border-zinc-700 text-white font-medium hover:bg-zinc-800 transition pricing-cta">Starten</button>
+            <a href="auditflow.html" class="mt-8 w-full py-3 rounded-xl border border-zinc-700 text-white font-medium hover:bg-zinc-800 transition text-center no-underline inline-flex items-center justify-center pricing-cta">Starten</a>
           </div>
           <div class="rounded-2xl border-2 border-lime/40 bg-zinccard p-8 flex flex-col relative shadow-[0_0_60px_-20px_rgba(200,241,53,0.2)]">
             <span class="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-mono uppercase tracking-wider bg-lime text-void px-3 py-1 rounded-full">Beliebt</span>
@@ -172,7 +172,7 @@
               <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-lime shrink-0"></i>White‑Label PDF</li>
               <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-lime shrink-0"></i>Prioritäts‑Support</li>
             </ul>
-            <button type="button" class="mt-8 w-full py-3 rounded-xl bg-lime text-void font-semibold hover:brightness-95 transition pricing-cta">14 Tage testen</button>
+            <a href="auditflow.html" class="mt-8 w-full py-3 rounded-xl bg-lime text-void font-semibold hover:brightness-95 transition text-center no-underline inline-flex items-center justify-center pricing-cta">14 Tage testen</a>
           </div>
           <div class="rounded-2xl border border-zinc-800 bg-zinccard p-8 flex flex-col">
             <p class="text-sm font-mono text-zinc-500 uppercase">Agency</p>
@@ -182,7 +182,7 @@
               <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-lime shrink-0"></i>Alles aus Pro</li>
               <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-lime shrink-0"></i>API &amp; Team‑Seats</li>
             </ul>
-            <button type="button" class="mt-8 w-full py-3 rounded-xl border border-zinc-700 text-white font-medium hover:bg-zinc-800 transition pricing-cta">Kontakt</button>
+            <a href="auditflow.html" class="mt-8 w-full py-3 rounded-xl border border-zinc-700 text-white font-medium hover:bg-zinc-800 transition text-center no-underline inline-flex items-center justify-center pricing-cta">Kontakt</a>
           </div>
         </div>
       </div>
@@ -789,8 +789,11 @@
     });
 
     $('btnNavAuth').addEventListener('click', () => setView('auth'));
-    $('heroCtaPrimary').addEventListener('click', () => setView('auth'));
     $('btnNavCta').addEventListener('click', () => {
+      if (STATE.view === 'landing') {
+        window.location.href = 'auditflow.html';
+        return;
+      }
       if (STATE.user) setView('dashboard');
       else setView('auth');
     });
@@ -799,8 +802,6 @@
     $('authBack').addEventListener('click', () => setView('landing'));
     document.querySelectorAll('[data-nav="landing"]').forEach((b) => b.addEventListener('click', () => { setView('landing'); document.getElementById('features')?.scrollIntoView(); }));
     document.querySelectorAll('[data-nav="pricing"]').forEach((b) => b.addEventListener('click', () => { setView('landing'); document.getElementById('pricing')?.scrollIntoView(); }));
-    document.querySelectorAll('.pricing-cta').forEach((b) => b.addEventListener('click', () => setView('auth')));
-
     $('btnPerformAudit').addEventListener('click', () => performAudit());
     $('btnSaveAudit').addEventListener('click', async () => {
       if (!STATE.lastScores || !STATE.user) return;

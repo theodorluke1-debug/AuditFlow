@@ -3,971 +3,827 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AuditFlow — Technisches SEO & Web Intelligence</title>
-  <meta name="description" content="B2B Technical SEO Auditor — Deep Crawl, Scoring, Reports.">
+  <title>AuditFlow — Technische Web‑Intelligence für Agenturen</title>
+  <meta name="description" content="Deep Technical SEO, Performance & Security Audits. B2B SaaS für Agenturen.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            surface: '#030303',
-            accent: '#c8f135',
-            line: '#1a1a1a',
-            muted: '#7a7a72',
+            void: '#030303',
+            lime: '#c8f135',
+            zinccard: '#18181b',
+            line: '#27272a',
           },
           fontFamily: {
             sans: ['Inter', 'system-ui', 'sans-serif'],
-            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+            mono: ['JetBrains Mono', 'monospace'],
           },
         },
       },
     };
   </script>
   <style>
-    :root {
-      --bg: #030303;
-      --accent: #c8f135;
-      --border: #1a1a1a;
-      --glow: rgba(200, 241, 53, 0.12);
+    html { scroll-behavior: smooth; }
+    body { background: #030303; }
+    .hero-glow {
+      background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(200, 241, 53, 0.14), transparent 55%);
     }
-    body { background: var(--bg); }
-    .card-interactive {
-      transition: border-color 0.2s ease, box-shadow 0.25s ease, transform 0.2s ease;
+    .view { display: none; opacity: 0; transition: opacity 0.35s ease; }
+    .view.active { display: block; opacity: 1; }
+    .card-hover {
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
     }
-    .card-interactive:hover {
-      border-color: #2a2a2a;
-      box-shadow: 0 0 0 1px rgba(200, 241, 53, 0.06), 0 20px 50px -28px rgba(0, 0, 0, 0.85);
-      transform: translateY(-1px);
+    .card-hover:hover {
+      transform: translateY(-2px);
+      border-color: #3f3f46;
+      box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(200, 241, 53, 0.06);
     }
-    .noise-overlay {
-      pointer-events: none;
-      opacity: 0.035;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    }
+    .noise { pointer-events: none; opacity: 0.04; position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
     @media print {
       .no-print { display: none !important; }
       body { background: #fff !important; color: #111 !important; }
-      .print-root { background: #fff !important; color: #111 !important; border-color: #ddd !important; }
-      .print-root * { color: inherit !important; border-color: #ddd !important; }
-      .print-accent { color: #3d4f00 !important; }
     }
   </style>
 </head>
-<body class="min-h-screen text-neutral-200 font-sans antialiased relative">
-  <div class="noise-overlay fixed inset-0 z-0" aria-hidden="true"></div>
+<body class="text-zinc-200 font-sans antialiased min-h-screen relative">
+  <div class="noise" aria-hidden="true"></div>
 
-  <header class="no-print sticky top-0 z-50 border-b border-line bg-surface/90 backdrop-blur-xl">
-    <div class="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <span class="font-semibold tracking-tight text-white">Audit<span class="text-accent not-italic">Flow</span></span>
-        <span class="hidden sm:inline text-[10px] font-mono text-muted uppercase tracking-[0.2em] border border-line rounded px-2 py-0.5">B2B SEO Intel</span>
-      </div>
-      <div class="flex items-center gap-2 text-xs font-mono text-muted">
-        <span id="authStatus" class="truncate max-w-[200px]">Nicht angemeldet</span>
-        <button type="button" id="btnAuth" class="text-accent hover:underline decoration-accent/50">Anmelden</button>
-        <button type="button" id="btnSignOut" class="hidden text-neutral-400 hover:text-white">Abmelden</button>
-      </div>
+  <!-- Global nav -->
+  <header class="no-print fixed top-0 left-0 right-0 z-50 border-b border-zinc-800/80 bg-void/80 backdrop-blur-2xl">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-4">
+      <button type="button" id="navLogo" class="flex items-center gap-2 text-left group">
+        <span class="font-bold text-lg tracking-tight text-white">Audit<span class="text-lime">Flow</span></span>
+        <span class="hidden sm:inline text-[10px] font-mono text-zinc-500 uppercase tracking-[0.2em] border border-zinc-800 rounded px-2 py-0.5">B2B</span>
+      </button>
+      <nav class="flex items-center gap-2 sm:gap-3">
+        <button type="button" data-nav="landing" class="nav-landing-only hidden text-sm text-zinc-400 hover:text-white transition">Produkt</button>
+        <button type="button" data-nav="pricing" class="nav-landing-only hidden text-sm text-zinc-400 hover:text-white transition">Preise</button>
+        <span id="navUserEmail" class="nav-dash-only hidden text-xs font-mono text-zinc-500 max-w-[140px] truncate"></span>
+        <button type="button" id="btnNavDashboard" class="nav-dash-only hidden text-sm font-medium text-lime hover:underline">Dashboard</button>
+        <button type="button" id="btnNavAuth" class="text-sm font-medium text-zinc-300 hover:text-white transition px-3 py-1.5 rounded-lg border border-zinc-800 hover:border-zinc-600">Anmelden</button>
+        <button type="button" id="btnNavCta" class="text-sm font-semibold bg-lime text-void px-4 py-2 rounded-lg hover:brightness-95 active:scale-[0.98] transition shadow-[0_0_24px_-6px_rgba(200,241,53,0.45)]">Audit starten</button>
+        <button type="button" id="btnNavSignOut" class="hidden text-sm text-zinc-500 hover:text-white transition px-2">Abmelden</button>
+      </nav>
     </div>
   </header>
 
-  <main class="relative z-10 max-w-6xl mx-auto px-5 py-10 print-root">
-    <section class="mb-10">
-      <p class="font-mono text-[10px] text-accent/90 uppercase tracking-[0.25em] mb-3">Technical Crawl</p>
-      <h1 class="text-3xl sm:text-4xl font-semibold text-white tracking-tight mb-2">Technisches SEO‑Audit</h1>
-      <p class="text-sm text-neutral-400 max-w-2xl leading-relaxed">Ziel‑URL analysieren, Struktur prüfen, Score erhalten — exportierbar für Kund:innen. Daten werden unter Ihrem Konto in Supabase gespeichert.</p>
-    </section>
-
-    <div class="grid lg:grid-cols-[1fr_380px] gap-8 items-start">
-      <div class="space-y-6">
-        <div class="rounded-xl border border-line bg-[#0a0a0a] p-5 card-interactive">
-          <label for="urlInput" class="block text-xs font-medium text-neutral-300 mb-2">Ziel‑URL</label>
-          <div class="flex flex-col sm:flex-row gap-3">
-            <input id="urlInput" type="url" placeholder="https://beispiel.de" autocomplete="url"
-              class="flex-1 rounded-lg border border-line bg-surface px-4 py-2.5 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-accent/25 focus:border-accent/40 font-mono text-[13px]" />
-            <button type="button" id="btnCrawl"
-              class="shrink-0 rounded-lg bg-accent text-surface px-5 py-2.5 text-sm font-semibold tracking-tight hover:brightness-95 active:scale-[0.98] transition shadow-[0_0_24px_-4px_rgba(200,241,53,0.35)]">
-              Tiefen‑Scan starten
-            </button>
-          </div>
-          <p class="mt-3 text-[11px] text-neutral-500 leading-relaxed">
-            <span class="text-neutral-400">Hinweis:</span> Bei externen Domains greift ggf. ein CORS‑Bridge — die gemessene <span class="text-neutral-400">Ladezeit</span> enthält dann auch die Bridge‑Latenz. Für exakte Werte: HTML einfügen oder später eigene Edge‑Function.
-          </p>
-          <label for="htmlFallback" class="mt-4 block text-xs font-medium text-neutral-300">HTML‑Fallback (optional)</label>
-          <textarea id="htmlFallback" rows="4" placeholder="&lt;html&gt;… Roh‑HTML einfügen wenn URL nicht erreichbar …"
-            class="mt-1 w-full rounded-lg border border-line bg-surface px-3 py-2 text-xs font-mono text-neutral-300 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-accent/20"></textarea>
+  <!-- ========== LANDING ========== -->
+  <section id="view-landing" class="view active pt-14 sm:pt-16 relative z-10">
+    <div class="hero-glow min-h-[92vh] flex flex-col">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-20 flex-1 flex flex-col justify-center">
+        <p class="font-mono text-lime/90 text-xs sm:text-sm uppercase tracking-[0.28em] mb-6">Technical Web Intelligence</p>
+        <h1 class="text-[2.1rem] leading-[1.08] sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-white tracking-tight max-w-4xl">
+          Technische Web‑Intelligence für Agenturen, <em class="not-italic text-lime">die Ergebnisse liefern.</em>
+        </h1>
+        <p class="mt-8 text-lg sm:text-xl text-zinc-400 max-w-2xl leading-relaxed font-light">
+          Deep Audit: SEO‑Protokoll, Performance‑Last, Sicherheits‑Header — ein Report, den Sie 1:1 an Kund:innen weitergeben können.
+        </p>
+        <div class="mt-10 flex flex-col sm:flex-row gap-4">
+          <button type="button" id="heroCtaPrimary" class="inline-flex items-center justify-center gap-2 rounded-xl bg-lime text-void px-8 py-4 text-base font-semibold hover:brightness-95 transition shadow-[0_0_40px_-8px_rgba(200,241,53,0.5)]">
+            <i data-lucide="zap" class="w-5 h-5"></i>
+            Kostenlosen Audit starten
+          </button>
+          <a href="#features" class="inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-700 px-8 py-4 text-base font-medium text-white hover:bg-zinc-900/50 transition">
+            <i data-lucide="layers" class="w-5 h-5 text-zinc-400"></i>
+            Funktionen
+          </a>
         </div>
-
-        <div id="progressPanel" class="hidden rounded-xl border border-line bg-[#0a0a0a] p-5">
-          <p class="text-xs font-mono text-accent mb-3 uppercase tracking-widest" id="progressLabel">Initialisiere…</p>
-          <ol id="progressSteps" class="space-y-2 text-sm text-neutral-400"></ol>
-        </div>
-
-        <div id="resultsPanel" class="hidden space-y-6">
-          <div class="grid sm:grid-cols-3 gap-4">
-            <div class="rounded-xl border border-line bg-[#0a0a0a] p-4 card-interactive flex flex-col items-center justify-center min-h-[160px]">
-              <p class="text-[10px] font-mono uppercase tracking-widest text-muted mb-2">Gesamt‑Score</p>
-              <div id="gaugeWrap" class="w-36 h-24"></div>
-              <p id="scoreBand" class="text-xs text-neutral-500 mt-1 text-center">—</p>
-            </div>
-            <div class="rounded-xl border border-line bg-[#0a0a0a] p-4 card-interactive sm:col-span-2">
-              <p class="text-[10px] font-mono uppercase tracking-widest text-muted mb-3">Dimensionen</p>
-              <div id="dimBars" class="space-y-3"></div>
-            </div>
+        <div class="mt-16 sm:mt-24 pt-10 border-t border-zinc-800/80">
+          <p class="text-center text-sm text-zinc-500 font-medium mb-6">Vertraut von <span class="text-white">500+</span> SEO‑Expert:innen &amp; Agentur‑Teams <span class="text-zinc-600">(simuliert)</span></p>
+          <div class="flex flex-wrap justify-center gap-8 sm:gap-14 opacity-50 grayscale hover:grayscale-0 hover:opacity-90 transition duration-500">
+            <span class="font-mono text-xs text-zinc-400 tracking-widest">RANKFIRST</span>
+            <span class="font-mono text-xs text-zinc-400 tracking-widest">SEARCHLAB</span>
+            <span class="font-mono text-xs text-zinc-400 tracking-widest">COREWEB</span>
+            <span class="font-mono text-xs text-zinc-400 tracking-widest">BERLIN SEO</span>
+            <span class="font-mono text-xs text-zinc-400 tracking-widest">AGENCY+</span>
           </div>
-
-          <div id="priorityPanel" class="rounded-xl border border-accent/20 bg-accent/[0.04] p-5 card-interactive">
-            <p class="text-[10px] font-mono uppercase tracking-widest text-accent mb-2">Priorisierte Maßnahmen</p>
-            <p class="text-xs text-neutral-500 mb-3">Automatisch aus Befunden (Fehler &amp; Warnungen), höchste Dringlichkeit oben.</p>
-            <ol id="priorityList" class="list-decimal list-inside space-y-2 text-sm text-neutral-300"></ol>
-          </div>
-
-          <div class="rounded-xl border border-line bg-[#0a0a0a] overflow-hidden card-interactive">
-            <button type="button" id="btnDeepDive" class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-white/[0.02] transition group">
-              <span>
-                <span class="block text-sm font-semibold text-white group-hover:text-accent transition-colors">Deep Dive — Rohbefunde</span>
-                <span class="text-xs text-neutral-500">Ladezeit, SEO‑Tiefe, UX/IA, Design‑Signale, Sicherheit, Rohdaten</span>
-              </span>
-              <svg class="w-5 h-5 text-neutral-500 group-hover:text-accent transition-transform" id="deepChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            <div id="deepDiveBody" class="hidden border-t border-line px-5 py-4 bg-surface/50 max-h-[min(72vh,720px)] overflow-y-auto">
-              <div id="deepDiveContent" class="text-xs font-mono text-neutral-400 space-y-6"></div>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap gap-3 no-print">
-            <button type="button" id="btnPrint" class="rounded-lg border border-line px-4 py-2 text-sm text-neutral-200 hover:border-neutral-600 hover:bg-white/[0.03] transition">PDF / Drucken</button>
-            <button type="button" id="btnSaveCloud" class="rounded-lg border border-accent/40 bg-accent/10 px-4 py-2 text-sm text-accent hover:bg-accent/15 transition">In Cloud speichern</button>
-          </div>
-          <p id="saveMsg" class="text-xs font-mono text-neutral-500 no-print"></p>
         </div>
       </div>
+    </div>
 
-      <aside class="rounded-xl border border-line bg-[#080808] p-5 card-interactive no-print">
-        <h2 class="text-xs font-semibold text-white uppercase tracking-wider mb-4">Supabase</h2>
-        <p class="text-[11px] text-neutral-500 mb-3 leading-relaxed">Fest mit Projekt verbunden. Scans in <span class="font-mono text-neutral-400">audits</span> (RLS, nur angemeldete Nutzer:innen).</p>
-        <p class="text-[10px] font-mono text-neutral-600 break-all mb-4" id="sbProjectHint">hqzudwrvfwucwijiztlt.supabase.co</p>
-        <p id="sbMsg" class="text-[11px] font-mono text-neutral-500 break-all mb-4"></p>
-        <hr class="my-4 border-line">
-        <h3 class="text-[10px] font-mono text-muted uppercase mb-2">Letzte Scans</h3>
-        <ul id="historyList" class="space-y-2 max-h-48 overflow-y-auto text-[11px] font-mono text-neutral-500"></ul>
+    <div id="features" class="max-w-6xl mx-auto px-4 sm:px-6 py-24 sm:py-32 scroll-mt-20">
+      <p class="font-mono text-lime text-xs uppercase tracking-[0.25em] mb-4">// Deep Protocol</p>
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-semibold text-white tracking-tight mb-4">Alles, was ein <em class="not-italic text-zinc-500">oberflächliches</em> Tool verschlägt.</h2>
+      <p class="text-zinc-400 text-lg max-w-2xl mb-16 leading-relaxed">Inspiriert von professionellen Audit‑Pipelines — gebaut für wiederkehrende Mandanten‑Reports.</p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <article class="rounded-2xl border border-zinc-800 bg-zinccard p-6 card-hover">
+          <i data-lucide="search" class="w-8 h-8 text-lime mb-4"></i>
+          <h3 class="text-lg font-semibold text-white mb-2">SEO‑Tiefe</h3>
+          <p class="text-sm text-zinc-400 leading-relaxed">Canonical, Meta, robots.txt, Sitemap‑Erreichbarkeit, Keyword‑Density‑Schätzung — kein Strohfeuer.</p>
+        </article>
+        <article class="rounded-2xl border border-zinc-800 bg-zinccard p-6 card-hover">
+          <i data-lucide="gauge" class="w-8 h-8 text-lime mb-4"></i>
+          <h3 class="text-lg font-semibold text-white mb-2">Performance‑Forensik</h3>
+          <p class="text-sm text-zinc-400 leading-relaxed">Render‑blocking Skripte, CSS‑Last, Bildformate &amp; Kompressionssignale, HTML‑Gewicht.</p>
+        </article>
+        <article class="rounded-2xl border border-zinc-800 bg-zinccard p-6 card-hover">
+          <i data-lucide="shield-check" class="w-8 h-8 text-lime mb-4"></i>
+          <h3 class="text-lg font-semibold text-white mb-2">Security‑Layer</h3>
+          <p class="text-sm text-zinc-400 leading-relaxed">HTTPS, HSTS, CSP‑Hinweise, X‑Frame‑Options — per Header‑Probe (wenn CORS es zulässt).</p>
+        </article>
+        <article class="rounded-2xl border border-zinc-800 bg-zinccard p-6 card-hover">
+          <i data-lucide="layout-template" class="w-8 h-8 text-lime mb-4"></i>
+          <h3 class="text-lg font-semibold text-white mb-2">Struktur &amp; UX</h3>
+          <p class="text-sm text-zinc-400 leading-relaxed">Landmarks, Überschriften‑Hierarchie, Alt‑Texte, IA‑Heuristiken.</p>
+        </article>
+        <article class="rounded-2xl border border-zinc-800 bg-zinccard p-6 card-hover">
+          <i data-lucide="cloud" class="w-8 h-8 text-lime mb-4"></i>
+          <h3 class="text-lg font-semibold text-white mb-2">Cloud‑Historie</h3>
+          <p class="text-sm text-zinc-400 leading-relaxed">Jeder Audit in Supabase — RLS‑geschützt, exportierbar, mandantenfähig.</p>
+        </article>
+        <article class="rounded-2xl border border-zinc-800 bg-zinccard p-6 card-hover">
+          <i data-lucide="sparkles" class="w-8 h-8 text-lime mb-4"></i>
+          <h3 class="text-lg font-semibold text-white mb-2">AppSumo‑ready</h3>
+          <p class="text-sm text-zinc-400 leading-relaxed">Klare Tiers, schneller Time‑to‑Value, Enterprise‑Anmutung statt Tutorial‑UI.</p>
+        </article>
+      </div>
+    </div>
+
+    <div id="pricing" class="border-t border-zinc-900 bg-black/40 scroll-mt-20">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-24 sm:py-28">
+        <p class="font-mono text-lime text-xs uppercase tracking-[0.25em] mb-4">// Pricing</p>
+        <h2 class="text-3xl sm:text-4xl font-semibold text-white mb-4">Einfach skalierbar.</h2>
+        <p class="text-zinc-400 mb-12 max-w-xl">Starten Sie kostenlos. Upgraden Sie, wenn Mandanten‑Audits explodieren.</p>
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="rounded-2xl border border-zinc-800 bg-zinccard p-8 flex flex-col">
+            <p class="text-sm font-mono text-zinc-500 uppercase">Starter</p>
+            <p class="mt-4 text-4xl font-bold text-white">€0</p>
+            <p class="text-sm text-zinc-500 mt-1">/ Monat</p>
+            <ul class="mt-8 space-y-3 text-sm text-zinc-400 flex-1">
+              <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-lime shrink-0"></i>5 Deep Audits / Monat</li>
+              <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-lime shrink-0"></i>PDF / Druck</li>
+            </ul>
+            <button type="button" class="mt-8 w-full py-3 rounded-xl border border-zinc-700 text-white font-medium hover:bg-zinc-800 transition pricing-cta">Starten</button>
+          </div>
+          <div class="rounded-2xl border-2 border-lime/40 bg-zinccard p-8 flex flex-col relative shadow-[0_0_60px_-20px_rgba(200,241,53,0.2)]">
+            <span class="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-mono uppercase tracking-wider bg-lime text-void px-3 py-1 rounded-full">Beliebt</span>
+            <p class="text-sm font-mono text-lime uppercase">Pro</p>
+            <p class="mt-4 text-4xl font-bold text-white">€49</p>
+            <p class="text-sm text-zinc-500 mt-1">/ Monat</p>
+            <ul class="mt-8 space-y-3 text-sm text-zinc-300 flex-1">
+              <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-lime shrink-0"></i>Unbegrenzte Audits</li>
+              <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-lime shrink-0"></i>White‑Label PDF</li>
+              <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-lime shrink-0"></i>Prioritäts‑Support</li>
+            </ul>
+            <button type="button" class="mt-8 w-full py-3 rounded-xl bg-lime text-void font-semibold hover:brightness-95 transition pricing-cta">14 Tage testen</button>
+          </div>
+          <div class="rounded-2xl border border-zinc-800 bg-zinccard p-8 flex flex-col">
+            <p class="text-sm font-mono text-zinc-500 uppercase">Agency</p>
+            <p class="mt-4 text-4xl font-bold text-white">€149</p>
+            <p class="text-sm text-zinc-500 mt-1">/ Monat</p>
+            <ul class="mt-8 space-y-3 text-sm text-zinc-400 flex-1">
+              <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-lime shrink-0"></i>Alles aus Pro</li>
+              <li class="flex gap-2"><i data-lucide="check" class="w-4 h-4 text-lime shrink-0"></i>API &amp; Team‑Seats</li>
+            </ul>
+            <button type="button" class="mt-8 w-full py-3 rounded-xl border border-zinc-700 text-white font-medium hover:bg-zinc-800 transition pricing-cta">Kontakt</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="border-t border-zinc-900 py-12 px-4">
+      <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-sm text-zinc-500">
+        <span>© 2026 AuditFlow</span>
+        <span class="font-mono text-xs">Inspired by <a href="https://theodorluke1-debug.github.io/QueryLogic/" class="text-zinc-400 hover:text-lime transition underline underline-offset-2">QueryLogic</a> — gebaut für B2B.</span>
+      </div>
+    </footer>
+  </section>
+
+  <!-- ========== AUTH ========== -->
+  <section id="view-auth" class="view pt-20 sm:pt-24 pb-20 px-4 relative z-10 min-h-screen flex items-center">
+    <div class="w-full max-w-md mx-auto rounded-2xl border border-zinc-800 bg-zinccard p-8 sm:p-10 shadow-2xl">
+      <p class="font-mono text-lime text-xs uppercase tracking-[0.2em] mb-2">Zugang</p>
+      <h2 class="text-2xl font-semibold text-white mb-6">Willkommen zurück</h2>
+      <div class="flex rounded-lg border border-zinc-800 p-1 mb-8">
+        <button type="button" id="tabSignIn" class="flex-1 py-2.5 text-sm font-medium rounded-md bg-zinc-800 text-white transition">Anmelden</button>
+        <button type="button" id="tabSignUp" class="flex-1 py-2.5 text-sm font-medium rounded-md text-zinc-400 hover:text-white transition">Registrieren</button>
+      </div>
+      <form id="formSignIn" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-zinc-400 mb-1.5" for="inEmail">E‑Mail</label>
+          <input id="inEmail" type="email" required autocomplete="email" class="w-full rounded-lg border border-zinc-700 bg-void px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-lime/30 focus:border-lime/40" placeholder="name@agentur.de" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-zinc-400 mb-1.5" for="inPass">Passwort</label>
+          <input id="inPass" type="password" required autocomplete="current-password" class="w-full rounded-lg border border-zinc-700 bg-void px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-lime/30" placeholder="••••••••" />
+        </div>
+        <p id="authError" class="text-sm text-red-400 hidden"></p>
+        <button type="submit" class="w-full py-3.5 rounded-xl bg-lime text-void font-semibold hover:brightness-95 transition">Anmelden</button>
+      </form>
+      <form id="formSignUp" class="space-y-4 hidden">
+        <div>
+          <label class="block text-xs font-medium text-zinc-400 mb-1.5" for="upEmail">E‑Mail</label>
+          <input id="upEmail" type="email" required autocomplete="email" class="w-full rounded-lg border border-zinc-700 bg-void px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-lime/30" placeholder="name@agentur.de" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-zinc-400 mb-1.5" for="upPass">Passwort (min. 8 Zeichen)</label>
+          <input id="upPass" type="password" required autocomplete="new-password" minlength="8" class="w-full rounded-lg border border-zinc-700 bg-void px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-lime/30" placeholder="••••••••" />
+        </div>
+        <p id="authErrorUp" class="text-sm text-red-400 hidden"></p>
+        <button type="submit" class="w-full py-3.5 rounded-xl bg-lime text-void font-semibold hover:brightness-95 transition">Konto erstellen</button>
+      </form>
+      <button type="button" id="authBack" class="mt-8 text-sm text-zinc-500 hover:text-white transition w-full text-center">← Zurück zur Startseite</button>
+    </div>
+  </section>
+
+  <!-- ========== DASHBOARD ========== -->
+  <section id="view-dashboard" class="view pt-20 sm:pt-24 pb-16 px-4 sm:px-6 relative z-10 max-w-6xl mx-auto no-print">
+    <div class="mb-10">
+      <p class="font-mono text-lime text-xs uppercase tracking-[0.25em] mb-2">Deep Audit Dashboard</p>
+      <h1 class="text-3xl sm:text-4xl font-semibold text-white tracking-tight">Technisches Audit</h1>
+      <p class="text-zinc-400 mt-2 text-sm sm:text-base max-w-2xl">Nur für angemeldete Nutzer:innen. Ergebnisse werden als <span class="font-mono text-zinc-300">scores_json</span> gespeichert.</p>
+    </div>
+
+    <div class="grid lg:grid-cols-[1fr_320px] gap-8">
+      <div class="space-y-6">
+        <div class="rounded-2xl border border-zinc-800 bg-zinccard p-5 sm:p-6 card-hover">
+          <label for="dashUrl" class="block text-xs font-medium text-zinc-300 mb-2">Ziel‑URL</label>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input id="dashUrl" type="url" placeholder="https://kunde.de" class="flex-1 rounded-xl border border-zinc-700 bg-void px-4 py-3 text-sm font-mono text-white focus:outline-none focus:ring-2 focus:ring-lime/25" />
+            <button type="button" id="btnPerformAudit" class="shrink-0 rounded-xl bg-lime text-void px-6 py-3 text-sm font-semibold hover:brightness-95 transition flex items-center justify-center gap-2">
+              <i data-lucide="radar" class="w-4 h-4"></i>
+              Audit ausführen
+            </button>
+          </div>
+          <label for="dashHtml" class="block text-xs font-medium text-zinc-300 mt-4 mb-1">HTML‑Fallback (optional)</label>
+          <textarea id="dashHtml" rows="3" class="w-full rounded-xl border border-zinc-700 bg-void px-3 py-2 text-xs font-mono text-zinc-300" placeholder="<html>… bei CORS …"></textarea>
+        </div>
+
+        <div id="dashProgress" class="hidden rounded-2xl border border-zinc-800 bg-zinccard p-5">
+          <p class="text-xs font-mono text-lime mb-3" id="dashProgressLabel">…</p>
+          <ol id="dashProgressList" class="text-sm text-zinc-400 space-y-1.5"></ol>
+        </div>
+
+        <div id="dashResults" class="hidden space-y-6">
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div class="rounded-2xl border border-zinc-800 bg-zinccard p-6 flex flex-col items-center">
+              <p class="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-2">Score</p>
+              <div id="dashGauge"></div>
+              <p id="dashBand" class="text-xs text-zinc-500 mt-2 text-center"></p>
+            </div>
+            <div class="rounded-2xl border border-zinc-800 bg-zinccard p-6">
+              <p class="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-3">Dimensionen</p>
+              <div id="dashDims" class="space-y-3"></div>
+            </div>
+          </div>
+          <div class="rounded-2xl border border-lime/20 bg-lime/[0.04] p-5">
+            <p class="text-xs font-mono text-lime uppercase mb-2">Priorisiert</p>
+            <ol id="dashPriority" class="list-decimal list-inside text-sm text-zinc-300 space-y-2"></ol>
+          </div>
+          <div class="rounded-2xl border border-zinc-800 bg-zinccard overflow-hidden">
+            <button type="button" id="btnToggleDeep" class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-white/[0.02]">
+              <span class="text-sm font-medium text-white">Technischer Deep Dive</span>
+              <i data-lucide="chevron-down" id="iconDeep" class="w-5 h-5 text-zinc-500"></i>
+            </button>
+            <div id="dashDeepBody" class="hidden border-t border-zinc-800 p-5 max-h-[560px] overflow-y-auto text-xs font-mono text-zinc-400"></div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button type="button" id="btnPrint" class="rounded-xl border border-zinc-700 px-4 py-2 text-sm hover:bg-zinc-800 transition">Drucken / PDF</button>
+            <button type="button" id="btnSaveAudit" class="rounded-xl border border-lime/40 bg-lime/10 text-lime px-4 py-2 text-sm hover:bg-lime/15 transition">Speichern</button>
+          </div>
+          <p id="dashSaveMsg" class="text-xs font-mono text-zinc-500"></p>
+        </div>
+      </div>
+      <aside class="rounded-2xl border border-zinc-800 bg-zinccard p-5 h-fit sticky top-24">
+        <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-3">Letzte Audits</h3>
+        <ul id="dashHistory" class="text-[11px] font-mono text-zinc-500 space-y-2 max-h-64 overflow-y-auto"></ul>
       </aside>
     </div>
-  </main>
+  </section>
 
-  <!-- Supabase v2 UMD -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
   <script>
     /**
-     * Supabase: create table (run in SQL editor):
-     *
+     * SQL (Supabase):
      * create table public.audits (
      *   id uuid primary key default gen_random_uuid(),
      *   user_id uuid not null references auth.users (id) on delete cascade,
      *   url text not null,
-     *   score integer,
-     *   result_json jsonb not null default '{}'::jsonb,
+     *   scores_json jsonb not null default '{}',
      *   created_at timestamptz not null default now()
      * );
-     * create index audits_user_created on public.audits (user_id, created_at desc);
      * alter table public.audits enable row level security;
-     * create policy "audits_select_own" on public.audits for select using (auth.uid() = user_id);
-     * create policy "audits_insert_own" on public.audits for insert with check (auth.uid() = user_id);
+     * create policy "sel" on public.audits for select using (auth.uid() = user_id);
+     * create policy "ins" on public.audits for insert with check (auth.uid() = user_id);
      */
 
-    const CONFIG = {
-      PROXY_TEMPLATE: null,
-      USE_PUBLIC_CORS_BRIDGE: true,
-    };
-
-    /** Fixed project (publishable key — protect with RLS in Supabase). */
     const SUPABASE_URL = 'https://hqzudwrvfwucwijiztlt.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_xbdT5jumnRVp4KdZs3nI0w_QvzwV172';
+    const CONFIG = { USE_PUBLIC_CORS_BRIDGE: true };
 
-    let supabaseClient = null;
-    let currentUser = null;
-    let lastAuditPayload = null;
+    const STATE = {
+      view: 'landing',
+      authTab: 'signin',
+      user: null,
+      lastScores: null,
+    };
 
+    let sb = null;
     const $ = (id) => document.getElementById(id);
 
-    /**
-     * Initialize Supabase client (embedded credentials).
-     */
+    function icons() {
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function setView(name) {
+      STATE.view = name;
+      document.querySelectorAll('.view').forEach((el) => {
+        el.classList.toggle('active', el.id === 'view-' + name);
+      });
+      document.querySelectorAll('.nav-landing-only').forEach((el) => {
+        el.classList.toggle('hidden', name !== 'landing');
+      });
+      document.querySelectorAll('.nav-dash-only').forEach((el) => {
+        el.classList.toggle('hidden', !STATE.user);
+      });
+      $('btnNavSignOut').classList.toggle('hidden', !STATE.user);
+      $('btnNavAuth').classList.toggle('hidden', !!STATE.user);
+      $('btnNavCta').textContent = STATE.user && name === 'landing' ? 'Zum Dashboard' : 'Audit starten';
+      icons();
+    }
+
     function initSupabase() {
-      if (!window.supabase || !window.supabase.createClient) {
-        $('sbMsg').textContent = 'Supabase SDK nicht geladen.';
-        return null;
-      }
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      if (!window.supabase?.createClient) return;
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth: { persistSession: true, autoRefreshToken: true },
       });
-      $('sbMsg').textContent = 'Client aktiv.';
-      bindAuth();
-      refreshSession();
-      return supabaseClient;
-    }
-
-    async function refreshSession() {
-      if (!supabaseClient) return;
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      currentUser = session?.user ?? null;
-      updateAuthUi();
-      if (currentUser) loadHistoryPreview();
-    }
-
-    function updateAuthUi() {
-      const st = $('authStatus');
-      const out = $('btnSignOut');
-      const inn = $('btnAuth');
-      if (currentUser) {
-        st.textContent = currentUser.email || currentUser.id;
-        out.classList.remove('hidden');
-        inn.textContent = 'Konto';
-      } else {
-        st.textContent = 'Nicht angemeldet';
-        out.classList.add('hidden');
-        inn.textContent = 'Anmelden';
-      }
-    }
-
-    function bindAuth() {
-      if (!supabaseClient || supabaseClient.__af_bound) return;
-      supabaseClient.__af_bound = true;
-      supabaseClient.auth.onAuthStateChange((_e, session) => {
-        currentUser = session?.user ?? null;
-        updateAuthUi();
-        if (currentUser) loadHistoryPreview();
+      sb.auth.onAuthStateChange((_e, session) => {
+        STATE.user = session?.user ?? null;
+        syncUserUi();
       });
     }
 
-    async function promptLogin() {
-      if (!supabaseClient) {
-        initSupabase();
-        if (!supabaseClient) return;
-      }
-      const email = window.prompt('E‑Mail für Magic Link:');
-      if (!email) return;
-      const { error } = await supabaseClient.auth.signInWithOtp({
-        email: email.trim(),
-        options: { emailRedirectTo: window.location.origin + window.location.pathname },
-      });
-      if (error) {
-        alert('Auth: ' + error.message);
-        return;
-      }
-      alert('Link gesendet — Postfach prüfen.');
+    async function syncUserUi() {
+      const u = STATE.user;
+      $('navUserEmail').textContent = u?.email || '';
+      $('btnNavSignOut').classList.toggle('hidden', !u);
+      $('btnNavAuth').classList.toggle('hidden', !!u);
+      if (u && STATE.view === 'auth') setView('dashboard');
+      if (u) await loadDashHistory();
+      icons();
     }
 
-    async function signOut() {
-      if (!supabaseClient) return;
-      await supabaseClient.auth.signOut();
-      currentUser = null;
-      updateAuthUi();
-      $('historyList').innerHTML = '';
+    async function refreshUser() {
+      if (!sb) return;
+      const { data: { session } } = await sb.auth.getSession();
+      STATE.user = session?.user ?? null;
+      syncUserUi();
     }
 
-    /**
-     * Persist audit row for authenticated user.
-     * @param {object} row — { url, score, result_json }
-     */
-    async function saveAudit(row) {
-      if (!supabaseClient) initSupabase();
-      if (!supabaseClient) throw new Error('Supabase nicht initialisiert');
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (!user) throw new Error('Bitte zuerst anmelden, um Scans zu speichern.');
-      const payload = {
-        user_id: user.id,
-        url: row.url,
-        score: Math.round(row.score),
-        result_json: row.result_json,
+    /* ---------- Fetch helpers ---------- */
+    async function fetchBridge(url) {
+      const u = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+      const t0 = performance.now();
+      const r = await fetch(u);
+      const t1 = performance.now();
+      const j = await r.json();
+      return { text: j.contents || '', status: r.status, ms: Math.round(t1 - t0) };
+    }
+
+    async function fetchPage(url) {
+      const t0 = performance.now();
+      try {
+        const r = await fetch(url, { mode: 'cors', credentials: 'omit', headers: { Accept: 'text/html' } });
+        const t1 = performance.now();
+        if (r.ok) {
+          const html = await r.text();
+          const t2 = performance.now();
+          return {
+            html,
+            via: 'direct',
+            timings: { ttfbMs: Math.round(t1 - t0), bodyMs: Math.round(t2 - t1), totalMs: Math.round(t2 - t0), bytesApprox: new Blob([html]).size },
+          };
+        }
+      } catch (_) {}
+      if (CONFIG.USE_PUBLIC_CORS_BRIDGE) {
+        const t0 = performance.now();
+        const b = await fetchBridge(url);
+        const t2 = performance.now();
+        return {
+          html: b.text,
+          via: 'cors-bridge',
+          timings: { ttfbMs: Math.round(b.ms * 0.4), bodyMs: Math.round(b.ms * 0.6), totalMs: Math.round(t2 - t0), bytesApprox: new Blob([b.text]).size, note: 'Bridge‑Roundtrip' },
+        };
+      }
+      throw new Error('URL nicht erreichbar');
+    }
+
+    async function fetchTextAny(url) {
+      try {
+        const r = await fetch(url, { mode: 'cors', credentials: 'omit' });
+        if (r.ok) return await r.text();
+      } catch (_) {}
+      const b = await fetchBridge(url);
+      return b.text;
+    }
+
+    async function probeSecurityHeaders(url) {
+      const out = { ok: false, headers: {}, note: null };
+      try {
+        const r = await fetch(url, { method: 'HEAD', mode: 'cors', credentials: 'omit' });
+        r.headers.forEach((v, k) => { out.headers[k.toLowerCase()] = v; });
+        out.ok = true;
+      } catch {
+        out.note = 'Header nicht lesbar (CORS) — nur TLS/URL‑Heuristik.';
+      }
+      return out;
+    }
+
+    /* ---------- Deep audit engine ---------- */
+    const STOP = new Set('der die das und oder mit von zu im auf ist sind ein eine den dem des für wird wirds nicht als auch noch nur kann man wie bei aus an um über unter'.split(' '));
+
+    function escapeHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function keywordDensityFromText(text) {
+      const words = (text || '').toLowerCase().replace(/[^a-zäöüß0-9\s]/gi, ' ').split(/\s+/).filter((w) => w.length > 2 && !STOP.has(w));
+      const total = words.length || 1;
+      const freq = {};
+      words.forEach((w) => { freq[w] = (freq[w] || 0) + 1; });
+      const top = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      return top.map(([w, c]) => ({ word: w, count: c, density: ((c / total) * 100).toFixed(2) }));
+    }
+
+    function parseDomAudit(html, pageUrl) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const findings = {
+        seo: [], performance: [], security: [], structure: [], ux: [],
       };
-      const { data, error } = await supabaseClient.from('audits').insert(payload).select('id').single();
-      if (error) throw error;
-      return data;
+
+      const title = doc.querySelector('title')?.textContent?.trim() || '';
+      const metas = [...doc.querySelectorAll('meta')];
+      const gm = (n, a = 'name') => metas.find((m) => (m.getAttribute(a) || '').toLowerCase() === n)?.getAttribute('content')?.trim();
+      const canonical = doc.querySelector('link[rel="canonical"]')?.getAttribute('href')?.trim();
+      const desc = gm('description') || gm('og:description', 'property');
+
+      if (!title) findings.seo.push({ l: 'e', m: 'Fehlender <title>' });
+      if (!desc) findings.seo.push({ l: 'e', m: 'Fehlende Meta‑Description' });
+      if (canonical) findings.seo.push({ l: 'o', m: `Canonical: ${canonical}` });
+      else findings.seo.push({ l: 'w', m: 'Kein canonical Link' });
+      if (gm('robots')?.toLowerCase().includes('noindex')) findings.seo.push({ l: 'w', m: 'robots: noindex' });
+
+      const imgs = [...doc.querySelectorAll('img')];
+      const noAlt = imgs.filter((i) => !i.hasAttribute('alt')).length;
+      if (noAlt) findings.structure.push({ l: 'e', m: `${noAlt} Bilder ohne alt` });
+
+      const webpish = imgs.filter((i) => /\.webp|type="image\/webp"/i.test(i.srcset || i.src || '')).length;
+      const legacy = imgs.length - webpish;
+      if (imgs.length && legacy / imgs.length > 0.6) findings.performance.push({ l: 'w', m: 'Viele Bilder nicht als WebP/AVIF signalisiert' });
+
+      const extScripts = doc.querySelectorAll('script[src]').length;
+      const blockHead = [...doc.querySelectorAll('head script[src]')].filter((s) => !s.async && !s.defer).length;
+      if (blockHead) findings.performance.push({ l: 'w', m: `${blockHead} blockierende Skripte im <head>` });
+      const cssN = doc.querySelectorAll('link[rel="stylesheet"]').length;
+      const estCssKb = cssN * 35;
+      findings.performance.push({ l: 'o', m: `Stylesheets: ${cssN} (~${estCssKb} KB geschätzt, nicht gemessen)` });
+
+      const bodyText = doc.body?.innerText || '';
+      const kd = keywordDensityFromText(bodyText);
+      if (kd[0] && parseFloat(kd[0].density) > 5) findings.seo.push({ l: 'w', m: `Hohe Keyword‑Dichte „${kd[0].word}“: ${kd[0].density}% — Stuffing‑Risiko` });
+      else findings.seo.push({ l: 'o', m: 'Keyword‑Top: ' + kd.slice(0, 3).map((k) => `${k.word} (${k.density}%)`).join(', '));
+
+      let tlsNA = !/^https?:\/\//i.test(pageUrl);
+      let https = true;
+      if (!tlsNA) {
+        try { https = new URL(pageUrl).protocol === 'https:'; } catch { https = false; }
+      }
+      if (tlsNA) findings.security.push({ l: 'o', m: 'TLS nicht bewertbar (reines HTML ohne URL)' });
+      else if (!https) findings.security.push({ l: 'e', m: 'Kein HTTPS' });
+      else findings.security.push({ l: 'o', m: 'HTTPS‑URL' });
+
+      const emptyA = [...doc.querySelectorAll('a[href]')].filter((a) => !(a.textContent || '').trim() && !a.querySelector('img,svg')).length;
+      if (emptyA) findings.ux.push({ l: 'w', m: `${emptyA} leere Link(s)` });
+      if (!doc.querySelector('main')) findings.ux.push({ l: 'w', m: 'Kein <main> Landmark' });
+      else findings.ux.push({ l: 'o', m: '<main> vorhanden' });
+
+      return { doc, findings, kd, title, canonical, metaDesc: desc };
     }
 
-    async function loadHistoryPreview() {
-      if (!supabaseClient || !currentUser) return;
-      const { data, error } = await supabaseClient
-        .from('audits')
-        .select('id, url, score, created_at')
-        .order('created_at', { ascending: false })
-        .limit(8);
-      const ul = $('historyList');
+    async function auditRobotsSitemap(origin) {
+      const seo = [];
+      let robots = '';
+      try {
+        robots = await fetchTextAny(origin + '/robots.txt');
+      } catch {
+        seo.push({ l: 'w', m: 'robots.txt nicht abrufbar' });
+        return { seo, sitemapUrls: 0 };
+      }
+      if (!robots.trim()) {
+        seo.push({ l: 'w', m: 'robots.txt leer oder blockiert' });
+        return { seo, sitemapUrls: 0 };
+      }
+      seo.push({ l: 'o', m: `robots.txt geladen (${robots.length} Zeichen)` });
+      const smLines = robots.split('\n').map((l) => l.trim()).filter((l) => /^sitemap\s*:/i.test(l));
+      if (!smLines.length) seo.push({ l: 'w', m: 'Keine Sitemap‑Zeile in robots.txt' });
+      let sitemapUrls = 0;
+      if (smLines[0]) {
+        const smUrl = smLines[0].split(/:\s*/i).slice(1).join(':').trim();
+        try {
+          const xml = await fetchTextAny(smUrl);
+          sitemapUrls = (xml.match(/<loc>/gi) || []).length;
+          seo.push({ l: 'o', m: `Sitemap: ${sitemapUrls} URLs (<loc>)` });
+          if (sitemapUrls > 50000) seo.push({ l: 'w', m: 'Sehr große Sitemap — Split empfohlen' });
+        } catch {
+          seo.push({ l: 'w', m: 'Sitemap‑URL nicht lesbar' });
+        }
+      }
+      return { seo, sitemapUrls };
+    }
+
+    function scoreList(arr) {
+      let s = 100;
+      (arr || []).forEach((f) => {
+        if (f.l === 'e') s -= 18;
+        if (f.l === 'w') s -= 7;
+      });
+      return Math.max(0, Math.min(100, Math.round(s)));
+    }
+
+    function mergeFindings(a, b) {
+      Object.keys(b).forEach((k) => { a[k] = [...(a[k] || []), ...b[k]]; });
+    }
+
+    async function runDeepAuditProtocol(pageUrl, html, timings, opts = {}) {
+      const skipRemote = !!opts.skipRemote;
+      let origin = '';
+      try { origin = new URL(pageUrl).origin; } catch { /* noop */ }
+
+      const { findings, kd, title, canonical, metaDesc } = parseDomAudit(html, pageUrl);
+      let robotsData = { seo: [], sitemapUrls: 0 };
+
+      if (!skipRemote && origin && /^https?:\/\//i.test(pageUrl)) {
+        robotsData = await auditRobotsSitemap(origin);
+        mergeFindings(findings, { seo: robotsData.seo });
+      } else {
+        findings.seo.push({ l: 'o', m: 'robots.txt / Sitemap‑Checks übersprungen (nur HTML oder ungültige URL).' });
+      }
+
+      let secProbe = { ok: false, headers: {}, note: null };
+      if (!skipRemote && /^https?:\/\//i.test(pageUrl)) {
+        secProbe = await probeSecurityHeaders(pageUrl);
+      } else {
+        findings.security.push({ l: 'w', m: 'Header‑Audit nur mit gültiger https‑URL möglich.' });
+      }
+
+      if (secProbe.ok) {
+        const h = secProbe.headers;
+        if (h['strict-transport-security']) findings.security.push({ l: 'o', m: 'HSTS aktiv' });
+        else findings.security.push({ l: 'w', m: 'Kein Strict-Transport-Security Header' });
+        if (h['content-security-policy']) findings.security.push({ l: 'o', m: 'CSP Header gesetzt' });
+        else findings.security.push({ l: 'w', m: 'Kein Content-Security-Policy Header' });
+        if ((h['x-frame-options'] || '').toLowerCase() || (h['content-security-policy'] || '').includes('frame-ancestors')) {
+          findings.security.push({ l: 'o', m: 'Clickjacking teilweise adressiert (XFO/CSP frame-ancestors)' });
+        } else findings.security.push({ l: 'w', m: 'Kein X-Frame-Options / frame-ancestors' });
+        if (h['x-content-type-options']?.toLowerCase() === 'nosniff') findings.security.push({ l: 'o', m: 'X-Content-Type-Options: nosniff' });
+        else findings.security.push({ l: 'w', m: 'Fehlendes X-Content-Type-Options' });
+      } else if (!skipRemote && /^https?:\/\//i.test(pageUrl)) {
+        findings.security.push({ l: 'w', m: secProbe.note || 'Security Header nicht auslesbar (CORS).' });
+      }
+
+      if (timings) {
+        if (timings.totalMs > 5000) findings.performance.push({ l: 'w', m: `Langsamer Abruf: ${timings.totalMs} ms` });
+        else findings.performance.push({ l: 'o', m: `Abruf: ${timings.totalMs} ms` });
+      }
+
+      const dims = {
+        seo: scoreList(findings.seo),
+        performance: scoreList(findings.performance),
+        security: scoreList(findings.security),
+        structure: scoreList([...findings.structure, ...findings.ux]),
+      };
+      const allF = [...findings.seo, ...findings.performance, ...findings.security, ...findings.structure, ...findings.ux];
+      const total = scoreList(allF);
+
+      return {
+        version: 3,
+        pageUrl,
+        timings: timings || null,
+        keywordDensity: kd,
+        title,
+        canonical,
+        metaDesc,
+        sitemapUrlCount: robotsData.sitemapUrls,
+        dimensions: dims,
+        total,
+        findings,
+      };
+    }
+
+    function renderF(msg) {
+      return msg.map((x) => `<li class="${x.l === 'e' ? 'text-red-400' : x.l === 'w' ? 'text-amber-300' : 'text-emerald-400'}">${escapeHtml(x.m)}</li>`).join('');
+    }
+
+    function renderDashboardResult(data) {
+      STATE.lastScores = data;
+      const f = data.findings;
+      const flat = [...f.seo, ...f.performance, ...f.security, ...f.structure, ...f.ux];
+      const bad = flat.filter((x) => x.l === 'e' || x.l === 'w').map((x) => x.m);
+      $('dashGauge').innerHTML = `<span class="text-5xl font-bold font-mono text-lime">${data.total}</span>`;
+      $('dashBand').textContent = data.total >= 75 ? 'Enterprise‑tauglich' : data.total >= 55 ? 'Solide — nachschärfen' : 'Handlungsbedarf';
+      const rows = ['seo', 'performance', 'security', 'structure'];
+      $('dashDims').innerHTML = rows.map((k) => `<div><div class="flex justify-between text-[11px] font-mono text-zinc-400 mb-1"><span>${k}</span><span class="text-lime">${data.dimensions[k]}</span></div><div class="h-1.5 rounded-full bg-zinc-800"><div class="h-full bg-lime/90 rounded-full" style="width:${data.dimensions[k]}%"></div></div></div>`).join('');
+      $('dashPriority').innerHTML = bad.length ? bad.slice(0, 20).map((m) => `<li>${escapeHtml(m)}</li>`).join('') : '<li class="text-zinc-500">Keine kritischen Warnungen.</li>';
+
+      const deep = $('dashDeepBody');
+      deep.innerHTML = `
+        <div class="space-y-6">
+          <div><p class="text-zinc-300 font-semibold mb-2">SEO</p><ul class="list-disc pl-4">${renderF(f.seo)}</ul></div>
+          <div><p class="text-zinc-300 font-semibold mb-2">Performance</p><ul class="list-disc pl-4">${renderF(f.performance)}</ul></div>
+          <div><p class="text-zinc-300 font-semibold mb-2">Security</p><ul class="list-disc pl-4">${renderF(f.security)}</ul></div>
+          <div><p class="text-zinc-300 font-semibold mb-2">Struktur</p><ul class="list-disc pl-4">${renderF(f.structure)}</ul></div>
+          <div><p class="text-zinc-300 font-semibold mb-2">UX</p><ul class="list-disc pl-4">${renderF(f.ux)}</ul></div>
+          <p class="text-zinc-500">Keyword Top: ${data.keywordDensity.slice(0, 5).map((k) => escapeHtml(k.word + ' ' + k.density + '%')).join(', ')}</p>
+        </div>`;
+      $('dashResults').classList.remove('hidden');
+      icons();
+    }
+
+    async function performAudit() {
+      if (!sb) { toast('Supabase nicht geladen'); return; }
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) {
+        setView('auth');
+        $('authError').textContent = 'Bitte anmelden, um Audits auszuführen.';
+        $('authError').classList.remove('hidden');
+        return;
+      }
+
+      const rawUrl = $('dashUrl').value.trim();
+      const htmlPaste = $('dashHtml').value.trim();
+      if (!rawUrl && !htmlPaste) {
+        toast('URL oder HTML angeben');
+        return;
+      }
+
+      $('dashProgress').classList.remove('hidden');
+      $('dashResults').classList.add('hidden');
+      const list = $('dashProgressList');
+      list.innerHTML = '';
+      const add = (t) => { const li = document.createElement('li'); li.textContent = '✓ ' + t; list.appendChild(li); };
+
+      let pageUrl = rawUrl || 'about:client-html';
+      let html = htmlPaste;
+      let timings = null;
+
+      if (rawUrl && !htmlPaste) {
+        $('dashProgressLabel').textContent = 'Lade Seite…';
+        const pack = await fetchPage(rawUrl);
+        html = pack.html;
+        pageUrl = rawUrl;
+        timings = pack.timings;
+        add('HTML geladen (' + pack.via + ')');
+      } else {
+        add('HTML aus Eingabe');
+      }
+
+      $('dashProgressLabel').textContent = 'Deep Protocol…';
+      const skipRemote = !$('dashUrl').value.trim();
+      const result = await runDeepAuditProtocol(pageUrl, html, timings, { skipRemote });
+      add('Analyse abgeschlossen');
+      $('dashProgress').classList.add('hidden');
+      renderDashboardResult(result);
+
+      try {
+        await sb.from('audits').insert({
+          user_id: user.id,
+          url: rawUrl || '[Eingefügtes HTML]',
+          scores_json: result,
+        });
+        $('dashSaveMsg').textContent = 'Automatisch gespeichert.';
+        await loadDashHistory();
+      } catch (e) {
+        $('dashSaveMsg').textContent = 'Speichern fehlgeschlagen: ' + (e.message || e);
+      }
+    }
+
+    async function loadDashHistory() {
+      if (!sb || !STATE.user) return;
+      const { data, error } = await sb.from('audits').select('url, created_at, scores_json').order('created_at', { ascending: false }).limit(12);
+      const ul = $('dashHistory');
       ul.innerHTML = '';
-      if (error) {
-        ul.innerHTML = `<li class="text-red-400/80">${error.message}</li>`;
-        return;
-      }
-      if (!data?.length) {
-        ul.innerHTML = '<li>Keine Einträge</li>';
-        return;
-      }
-      data.forEach((r) => {
+      if (error) { ul.innerHTML = '<li class="text-red-400">' + error.message + '</li>'; return; }
+      (data || []).forEach((row) => {
+        const sc = row.scores_json?.total ?? '—';
         const li = document.createElement('li');
-        li.className = 'truncate border-b border-line/60 pb-1';
-        li.textContent = `${r.score ?? '—'} · ${r.url}`;
-        li.title = r.url;
+        li.className = 'truncate border-b border-zinc-800 pb-1';
+        li.textContent = `${sc} · ${row.url}`;
         ul.appendChild(li);
       });
     }
 
-    // --- Fetch pipeline (proxy-ready) + network timings ---
+    function toast(m) {
+      $('authError').textContent = m;
+      $('authError').classList.remove('hidden');
+      setTimeout(() => $('authError').classList.add('hidden'), 4000);
+    }
 
-    async function fetchHtmlRaw(targetUrl) {
-      const headers = { Accept: 'text/html,application/xhtml+xml' };
+    /* ---------- Auth forms ---------- */
+    function showAuthTab(which) {
+      STATE.authTab = which;
+      $('formSignIn').classList.toggle('hidden', which !== 'signin');
+      $('formSignUp').classList.toggle('hidden', which !== 'signup');
+      $('tabSignIn').classList.toggle('bg-zinc-800', which === 'signin');
+      $('tabSignIn').classList.toggle('text-white', which === 'signin');
+      $('tabSignIn').classList.toggle('text-zinc-400', which !== 'signin');
+      $('tabSignUp').classList.toggle('bg-zinc-800', which === 'signup');
+      $('tabSignUp').classList.toggle('text-white', which === 'signup');
+      $('tabSignUp').classList.toggle('text-zinc-400', which !== 'signup');
+    }
 
-      const pack = (html, via, t0, tHeaders, tDone, status, note) => ({
-        html,
-        via,
-        timings: {
-          phase: 'network',
-          httpStatus: status,
-          ttfbMs: Math.round(tHeaders - t0),
-          bodyMs: Math.round(tDone - tHeaders),
-          totalMs: Math.round(tDone - t0),
-          bytesApprox: new Blob([html]).size,
-          note: note || null,
-        },
+    $('formSignIn').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!sb) return;
+      $('authError').classList.add('hidden');
+      const { error } = await sb.auth.signInWithPassword({
+        email: $('inEmail').value.trim(),
+        password: $('inPass').value,
       });
-
-      try {
-        const t0 = performance.now();
-        const res = await fetch(targetUrl, { method: 'GET', mode: 'cors', credentials: 'omit', headers });
-        const t1 = performance.now();
-        if (res.ok) {
-          const html = await res.text();
-          const t2 = performance.now();
-          return pack(html, 'direct', t0, t1, t2, res.status, null);
-        }
-      } catch (_) { /* CORS or network */ }
-
-      if (CONFIG.PROXY_TEMPLATE) {
-        const proxyUrl = CONFIG.PROXY_TEMPLATE.replace('{url}', encodeURIComponent(targetUrl));
-        const t0 = performance.now();
-        const res = await fetch(proxyUrl, { credentials: 'omit' });
-        const t1 = performance.now();
-        if (!res.ok) throw new Error('Proxy HTTP ' + res.status);
-        const html = await res.text();
-        const t2 = performance.now();
-        return pack(html, 'custom-proxy', t0, t1, t2, res.status, null);
-      }
-
-      if (CONFIG.USE_PUBLIC_CORS_BRIDGE) {
-        const bridge = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-        const t0 = performance.now();
-        const res = await fetch(bridge);
-        const t1 = performance.now();
-        if (!res.ok) throw new Error('Bridge HTTP ' + res.status);
-        const j = await res.json();
-        const t2 = performance.now();
-        const html = j.contents || '';
-        if (!html) throw new Error('Bridge: leere Antwort');
-        return pack(html, 'cors-bridge', t0, t1, t2, res.status,
-          'Roundtrip‑Zeit inkl. Bridge. Für echtes Ziel‑TTFB: serverseitiger Crawler empfohlen.');
-      }
-
-      throw new Error('URL nicht abrufbar (CORS). HTML‑Fallback nutzen oder Proxy setzen.');
-    }
-
-    // --- Deep crawl: meta → media → headings → perf → IA/UX → design → trust → SEO+ ---
-
-    function parseHtmlDocument(html, pageUrl, fetchCtx) {
-      const ctx = fetchCtx || {};
-      const netTimings = ctx.timings || null;
-      const tParse0 = performance.now();
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const parseMs = Math.round(performance.now() - tParse0);
-
-      const steps = [];
-      const findings = {
-        meta: [], images: [], headings: [], performance: [], structure: [],
-        loading: [], advanced_seo: [], ux_ia: [], design: [], trust: [],
-      };
-
-      // Step A: Meta & head
-      const titleEl = doc.querySelector('title');
-      const title = titleEl?.textContent?.trim() || '';
-      const metas = [...doc.querySelectorAll('meta')];
-      const getMeta = (name, attr = 'name') =>
-        metas.find((m) => (m.getAttribute(attr) || '').toLowerCase() === name.toLowerCase())?.getAttribute('content')?.trim();
-
-      const desc = getMeta('description') || getMeta('og:description', 'property');
-      const viewport = getMeta('viewport');
-      const robots = getMeta('robots');
-      const canonical = doc.querySelector('link[rel="canonical"]')?.getAttribute('href')?.trim();
-      const ogTitle = getMeta('og:title', 'property');
-
-      if (!title) findings.meta.push({ level: 'error', msg: 'Fehlender <title>' });
-      else if (title.length < 15) findings.meta.push({ level: 'warn', msg: `Titel sehr kurz (${title.length} Zeichen)` });
-      else if (title.length > 70) findings.meta.push({ level: 'warn', msg: `Titel lang — SERP‑Kürzung möglich (${title.length})` });
-      else findings.meta.push({ level: 'ok', msg: `Titel OK (${title.length} Zeichen)` });
-
-      if (!desc) findings.meta.push({ level: 'error', msg: 'Fehlende Meta‑Description' });
-      else if (desc.length < 80) findings.meta.push({ level: 'warn', msg: `Description kurz (${desc.length})` });
-      else if (desc.length > 200) findings.meta.push({ level: 'warn', msg: `Description sehr lang (${desc.length})` });
-      else findings.meta.push({ level: 'ok', msg: `Description OK (${desc.length})` });
-
-      if (!viewport) findings.meta.push({ level: 'warn', msg: 'Kein viewport — Mobile SEO leidet' });
-      else findings.meta.push({ level: 'ok', msg: 'Viewport gesetzt' });
-
-      if (robots && /noindex/i.test(robots)) findings.meta.push({ level: 'warn', msg: 'robots enthält noindex' });
-      if (canonical) findings.meta.push({ level: 'ok', msg: `Canonical: ${canonical}` });
-      else findings.meta.push({ level: 'warn', msg: 'Kein rel=canonical' });
-
-      if (ogTitle || getMeta('og:image', 'property')) findings.meta.push({ level: 'ok', msg: 'Open Graph teilweise vorhanden' });
-      else findings.meta.push({ level: 'warn', msg: 'Open Graph unvollständig' });
-
-      const charsetMeta = doc.querySelector('meta[charset]')?.getAttribute('charset')
-        || metas.find((m) => (m.getAttribute('http-equiv') || '').toLowerCase() === 'content-type')?.getAttribute('content');
-      if (charsetMeta && /utf-8/i.test(charsetMeta)) findings.meta.push({ level: 'ok', msg: 'Zeichencodierung UTF‑8' });
-      else findings.meta.push({ level: 'warn', msg: 'Charset / UTF‑8 nicht eindeutig' });
-
-      if (doc.querySelector('parsererror')) {
-        findings.meta.push({ level: 'error', msg: 'Parser meldet fehlerhaftes Markup' });
-      }
-
-      if (netTimings) {
-        findings.loading.push({ level: 'ok', msg: `TTFB (bis erste Response‑Bytes): ${netTimings.ttfbMs} ms` });
-        findings.loading.push({ level: 'ok', msg: `Payload‑Phase (Text): ${netTimings.bodyMs} ms` });
-        findings.loading.push({ level: 'ok', msg: `Gesamt (Fetch): ${netTimings.totalMs} ms · ca. ${(netTimings.bytesApprox / 1024).toFixed(1)} KB HTML` });
-        if (netTimings.ttfbMs > 1200) findings.loading.push({ level: 'warn', msg: 'Hohes TTFB — Hosting, CDN, DB oder Bridge prüfen' });
-        if (netTimings.ttfbMs > 2800) findings.loading.push({ level: 'error', msg: 'Sehr hohes TTFB — Conversion‑Risiko' });
-        if (netTimings.totalMs > 4000) findings.loading.push({ level: 'warn', msg: 'Gesamtabruf > 4 s — wahrscheinlich spürbar langsam' });
-        if (netTimings.totalMs > 9000) findings.loading.push({ level: 'error', msg: 'Gesamtabruf > 9 s — inakzeptabel für B2B' });
-        if (netTimings.note) findings.loading.push({ level: 'ok', msg: netTimings.note });
-      } else {
-        findings.loading.push({ level: 'warn', msg: 'Kein Netzwerk‑Timing (eingefügtes HTML). Für LCP/TTFB: Live‑URL oder Server‑Crawler.' });
-      }
-      if (parseMs > 120) findings.loading.push({ level: 'warn', msg: `Sehr großes DOM — Parsing ${parseMs} ms` });
-      else findings.loading.push({ level: 'ok', msg: `DOM‑Parse lokal: ${parseMs} ms` });
-
-      steps.push({ id: 'meta', label: 'Meta‑Tags & SERP‑Signale', ok: findings.meta.every((f) => f.level !== 'error') });
-      steps.push({ id: 'load', label: 'Ladezeit & Abruf', ok: !findings.loading.some((f) => f.level === 'error') });
-
-      // Step B: Images / alt
-      const imgs = [...doc.querySelectorAll('img')];
-      let missingAlt = 0;
-      let emptyAltDecorative = 0;
-      imgs.forEach((img) => {
-        if (!img.hasAttribute('alt')) missingAlt++;
-        else if (img.getAttribute('alt') === '') emptyAltDecorative++;
-      });
-      if (missingAlt) findings.images.push({ level: 'error', msg: `${missingAlt} Bild(er) ohne alt` });
-      if (emptyAltDecorative) findings.images.push({ level: 'ok', msg: `${emptyAltDecorative} Bild(er) mit alt="" (dekorativ)` });
-      if (!imgs.length) findings.images.push({ level: 'warn', msg: 'Keine <img> im Dokument' });
-      else if (!missingAlt) findings.images.push({ level: 'ok', msg: 'Alle img haben alt‑Attribut' });
-
-      steps.push({ id: 'img', label: 'Alt‑Texte & Bild‑SEO', ok: missingAlt === 0 });
-
-      // Step C: Heading hierarchy (document order)
-      const headingSel = 'h1, h2, h3, h4, h5, h6';
-      const hNodes = [...doc.querySelectorAll(headingSel)];
-      const levels = hNodes.map((el) => ({ tag: el.tagName.toLowerCase(), level: +el.tagName[1], text: el.textContent.trim().slice(0, 120) }));
-
-      const h1s = levels.filter((h) => h.level === 1);
-      if (h1s.length === 0) findings.headings.push({ level: 'error', msg: 'Kein H1' });
-      else if (h1s.length > 1) findings.headings.push({ level: 'warn', msg: `${h1s.length} H1 — besser genau eines` });
-      else findings.headings.push({ level: 'ok', msg: 'Genau ein H1' });
-
-      let prev = 0;
-      let skip = false;
-      for (const h of levels) {
-        if (prev === 0) {
-          if (h.level !== 1) {
-            findings.headings.push({ level: 'warn', msg: `Erste Überschrift ist ${h.tag.toUpperCase()}, nicht H1` });
-            skip = true;
-          }
-        } else if (h.level > prev + 1) {
-          findings.headings.push({ level: 'warn', msg: `Ebenen‑Sprung: ${prev} → ${h.level} („${h.text}“)` });
-          skip = true;
-        }
-        prev = h.level;
-      }
-      if (!skip && levels.length) findings.headings.push({ level: 'ok', msg: 'Keine großen Ebenen‑Sprünge erkannt' });
-
-      steps.push({ id: 'head', label: 'Überschriften‑Hierarchie', ok: !findings.headings.some((f) => f.level === 'error') });
-
-      // Step D: Performance heuristics (static + render‑Risiken)
-      const scripts = doc.querySelectorAll('script[src]').length;
-      const inlineScripts = [...doc.querySelectorAll('script:not([src])')].reduce((n, s) => n + (s.textContent?.length || 0), 0);
-      const styles = doc.querySelectorAll('link[rel="stylesheet"]').length;
-      const headBlockingScripts = [...doc.querySelectorAll('head script[src]')].filter((s) => !s.async && !s.defer).length;
-      const preloads = doc.querySelectorAll('link[rel="preload"],link[rel="modulepreload"]').length;
-      const preconnects = doc.querySelectorAll('link[rel="preconnect"],link[rel="dns-prefetch"]').length;
-      const iframes = doc.querySelectorAll('iframe').length;
-
-      if (scripts > 25) findings.performance.push({ level: 'warn', msg: `Viele externe Skripte (${scripts})` });
-      else findings.performance.push({ level: 'ok', msg: `Externe Skripte: ${scripts}` });
-      if (inlineScripts > 8000) findings.performance.push({ level: 'warn', msg: 'Große Inline‑Skripte (Parsing‑Kosten)' });
-      if (styles > 12) findings.performance.push({ level: 'warn', msg: `Viele CSS‑Dateien (${styles})` });
-      else findings.performance.push({ level: 'ok', msg: `Stylesheets: ${styles}` });
-      if (headBlockingScripts > 0) findings.performance.push({ level: 'warn', msg: `${headBlockingScripts} render‑blockierende Skripte im <head> (ohne defer/async)` });
-      if (preloads) findings.performance.push({ level: 'ok', msg: `Ressourcen‑Hints: ${preloads} preload/modulepreload` });
-      if (preconnects) findings.performance.push({ level: 'ok', msg: `Origin‑Hints: ${preconnects} preconnect/dns‑prefetch` });
-      else findings.performance.push({ level: 'warn', msg: 'Keine preconnect/dns‑prefetch — externe Fonts/APIs langsamer' });
-      if (iframes > 6) findings.performance.push({ level: 'warn', msg: `Viele iframes (${iframes}) — Third‑Party‑Last` });
-
-      const imgsLazy = imgs.filter((img) => (img.getAttribute('loading') || '').toLowerCase() === 'lazy').length;
-      if (imgs.length && imgsLazy / imgs.length < 0.25 && imgs.length > 8) {
-        findings.performance.push({ level: 'warn', msg: 'Wenig lazy‑loading trotz vieler Bilder — LCP‑Risiko' });
-      }
-      const imgsNoDims = imgs.filter((img) => !img.getAttribute('width') && !img.getAttribute('height')).length;
-      if (imgsNoDims > 5) findings.performance.push({ level: 'warn', msg: `${imgsNoDims} Bilder ohne width/height — CLS‑Risiko` });
-
-      const htmlKb = (html.length / 1024).toFixed(1);
-      if (html.length > 800_000) findings.performance.push({ level: 'error', msg: `Extrem großes HTML (${htmlKb} KB)` });
-      else if (html.length > 200_000) findings.performance.push({ level: 'warn', msg: `Sehr großes HTML (${htmlKb} KB)` });
-      else findings.performance.push({ level: 'ok', msg: `HTML‑Rohgröße: ${htmlKb} KB` });
-
-      steps.push({ id: 'perf', label: 'Performance & Lade‑Heuristik', ok: !findings.performance.some((f) => f.level === 'error') });
-
-      // Structure: semantics & landmarks
-      const htmlLang = doc.documentElement.getAttribute('lang');
-      if (!htmlLang) findings.structure.push({ level: 'warn', msg: 'html[lang] fehlt' });
-      else findings.structure.push({ level: 'ok', msg: `lang="${htmlLang}"` });
-      if (!doc.querySelector('main')) findings.structure.push({ level: 'warn', msg: 'Kein <main> Landmark' });
-      else findings.structure.push({ level: 'ok', msg: '<main> vorhanden' });
-      const hasHeader = !!doc.querySelector('header,[role="banner"]');
-      const hasNav = !!doc.querySelector('nav,[role="navigation"]');
-      const hasFooter = !!doc.querySelector('footer,[role="contentinfo"]');
-      if (hasHeader) findings.structure.push({ level: 'ok', msg: 'Kopfbereich / Banner erkannt' });
-      else findings.structure.push({ level: 'warn', msg: 'Kein <header> — Prüfen ob Skip‑Navigation fehlt' });
-      if (hasNav) findings.structure.push({ level: 'ok', msg: 'Navigation vorhanden' });
-      else findings.structure.push({ level: 'warn', msg: 'Kein <nav> — Orientierung schwieriger' });
-      if (hasFooter) findings.structure.push({ level: 'ok', msg: 'Footer vorhanden (Vertrauen / Rechtliches)' });
-      else findings.structure.push({ level: 'warn', msg: 'Kein <footer> — typische B2B‑Elemente fehlen oft' });
-      const articles = doc.querySelectorAll('article').length;
-      if (articles) findings.structure.push({ level: 'ok', msg: `${articles} <article> — inhaltliche Module` });
-
-      steps.push({ id: 'struct', label: 'Semantik & Seitenaufbau', ok: true });
-
-      // Advanced SEO
-      const hreflangs = doc.querySelectorAll('link[rel="alternate"][hreflang]').length;
-      if (hreflangs) findings.advanced_seo.push({ level: 'ok', msg: `${hreflangs} hreflang‑Alternate(s)` });
-      else if (pageUrl.startsWith('http')) findings.advanced_seo.push({ level: 'warn', msg: 'Keine hreflang‑Links erkannt (Mehrsprachigkeit?)' });
-
-      const ldNodes = [...doc.querySelectorAll('script[type="application/ld+json"]')];
-      let ldInvalid = 0;
-      ldNodes.forEach((n) => {
-        const raw = (n.textContent || '').trim();
-        if (!raw) return;
-        try {
-          JSON.parse(raw);
-        } catch {
-          ldInvalid++;
-        }
-      });
-      if (ldNodes.length) findings.advanced_seo.push({ level: 'ok', msg: `${ldNodes.length} JSON‑LD Block/Blöcke` });
-      else findings.advanced_seo.push({ level: 'warn', msg: 'Kein JSON‑LD — Rich Results / KI‑Snippet‑Potenzial ungenutzt' });
-      if (ldInvalid) findings.advanced_seo.push({ level: 'error', msg: `${ldInvalid} JSON‑LD Block(s) syntaktisch ungültig` });
-
-      if (getMeta('twitter:card', 'name')) findings.advanced_seo.push({ level: 'ok', msg: 'Twitter Card Meta vorhanden' });
-      else findings.advanced_seo.push({ level: 'warn', msg: 'Keine twitter:card Meta' });
-
-      const allIds = [...doc.querySelectorAll('[id]')].map((el) => el.id);
-      const dupIds = [...new Set(allIds.filter((id, i) => id && allIds.indexOf(id) !== i))];
-      if (dupIds.length) findings.advanced_seo.push({ level: 'error', msg: `Doppelte IDs: ${dupIds.slice(0, 5).join(', ')}${dupIds.length > 5 ? '…' : ''}` });
-
-      const bodyText = doc.body?.innerText || '';
-      const wordCount = bodyText.trim() ? bodyText.trim().split(/\s+/).length : 0;
-      if (wordCount < 120) findings.advanced_seo.push({ level: 'warn', msg: `Dünner sichtbarer Text (~${wordCount} Wörter) — E‑E‑A‑T / Qualitätssignal` });
-      else findings.advanced_seo.push({ level: 'ok', msg: `Sichtbarer Fließtext ~${wordCount} Wörter` });
-
-      const h1Text = (h1s[0]?.text || title).toLowerCase();
-      if (title && h1s.length === 1 && !h1Text.includes(title.slice(0, 12).toLowerCase()) && !title.toLowerCase().includes(h1Text.slice(0, 12))) {
-        findings.advanced_seo.push({ level: 'warn', msg: 'H1 und <title> wirken thematisch entkoppelt' });
-      }
-
-      steps.push({ id: 'aseo', label: 'SEO‑Tiefe (Schema, hreflang, Text)', ok: !findings.advanced_seo.some((f) => f.level === 'error') });
-
-      // UX / IA
-      const emptyLinks = [...doc.querySelectorAll('a[href]')].filter((a) => !(a.textContent || '').trim() && !a.querySelector('img,svg')).length;
-      if (emptyLinks) findings.ux_ia.push({ level: 'error', msg: `${emptyLinks} leere Links (nur Icon ok — prüfen)` });
-
-      const genericRe = /^(hier klicken|click here|mehr|weiter|read more|more|link|here)$/i;
-      const badLinkTexts = [...doc.querySelectorAll('a[href]')].filter((a) => genericRe.test((a.textContent || '').trim())).length;
-      if (badLinkTexts) findings.ux_ia.push({ level: 'warn', msg: `${badLinkTexts} generische Link‑Texte — schlecht für SEO & Screenreader` });
-
-      const navLinks = doc.querySelectorAll('nav a[href]').length;
-      if (navLinks > 90) findings.ux_ia.push({ level: 'warn', msg: `Sehr viele Nav‑Links (${navLinks}) — kognitive Last` });
-      else if (navLinks) findings.ux_ia.push({ level: 'ok', msg: `Navigation: ${navLinks} Links` });
-
-      const inputs = [...doc.querySelectorAll('input:not([type="hidden"]), textarea, select')];
-      let unlabeled = 0;
-      inputs.forEach((el) => {
-        const id = el.getAttribute('id');
-        const aria = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby');
-        const inLabel = el.closest('label');
-        let hasFor = false;
-        if (id) {
-          try {
-            const q = typeof CSS !== 'undefined' && CSS.escape
-              ? `label[for="${CSS.escape(id)}"]`
-              : `label[for="${id.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"]`;
-            hasFor = !!doc.querySelector(q);
-          } catch {
-            hasFor = false;
-          }
-        }
-        if (!aria && !inLabel && !hasFor) unlabeled++;
-      });
-      if (unlabeled) findings.ux_ia.push({ level: 'warn', msg: `${unlabeled} Formularfelder ohne klares Label` });
-
-      if (doc.querySelector('a[href^="#"]')) findings.ux_ia.push({ level: 'ok', msg: 'Anker‑Navigation vorhanden' });
-
-      steps.push({ id: 'ux', label: 'UX & Informationsarchitektur', ok: !findings.ux_ia.some((f) => f.level === 'error') });
-
-      // Design / "Wow" heuristics (Markup‑basiert)
-      const lowerHtml = html.toLowerCase();
-      const svgN = doc.querySelectorAll('svg').length;
-      const videoN = doc.querySelectorAll('video').length;
-      const canvasN = doc.querySelectorAll('canvas').length;
-      const pictureN = doc.querySelectorAll('picture').length;
-      const animHits = (lowerHtml.match(/@keyframes/g) || []).length + (lowerHtml.match(/\banimation\s*:/g) || []).length;
-      const transHits = (lowerHtml.match(/\btransition\s*:/g) || []).length;
-      const backdropHits = (lowerHtml.match(/backdrop-filter/g) || []).length;
-      const gradHits = (lowerHtml.match(/linear-gradient|radial-gradient/g) || []).length;
-      const fontLinks = doc.querySelectorAll('link[href*="fonts.googleapis"],link[href*="typekit"],link[href*="fonts.gstatic"]').length;
-
-      let wowPts = 0;
-      if (svgN >= 3) wowPts += 2;
-      if (videoN + canvasN > 0) wowPts += 2;
-      if (animHits + transHits > 8) wowPts += 2;
-      if (backdropHits || gradHits > 4) wowPts += 2;
-      if (pictureN) wowPts += 1;
-      if (fontLinks) wowPts += 1;
-
-      findings.design.push({ level: 'ok', msg: `Visuelle Dichte: ${svgN} SVG, ${videoN} Video, ${canvasN} Canvas, ${pictureN} picture` });
-      findings.design.push({ level: 'ok', msg: `Motion/Fläche: ${animHits} @keyframes/animation, ${transHits} transition, ${gradHits} Gradient‑Treffer` });
-      if (backdropHits) findings.design.push({ level: 'ok', msg: 'backdrop‑filter — moderne Tiefe möglich' });
-      if (wowPts >= 6) findings.design.push({ level: 'ok', msg: 'Hohes Potenzial für visuellen „Wow“‑Effekt (Heuristik)' });
-      else if (wowPts >= 3) findings.design.push({ level: 'ok', msg: 'Solides visuelles Niveau — ausbaufähig' });
-      else findings.design.push({ level: 'warn', msg: 'Wenig Motion/SVG/Medien — Seite wirkt eher statisch / nüchtern' });
-
-      const inlineStyleNodes = doc.querySelectorAll('[style]').length;
-      if (inlineStyleNodes > 80) findings.design.push({ level: 'warn', msg: `Viele inline‑styles (${inlineStyleNodes}) — Design‑System oft fragmentiert` });
-
-      const themeColor = getMeta('theme-color');
-      if (themeColor) findings.design.push({ level: 'ok', msg: `theme-color gesetzt (${themeColor})` });
-      else findings.design.push({ level: 'warn', msg: 'Kein meta theme-color — Mobile Browser‑Chrome weniger markenstark' });
-
-      const fav = doc.querySelector('link[rel~="icon"],link[rel="apple-touch-icon"]');
-      if (fav) findings.design.push({ level: 'ok', msg: 'Favicon / Touch‑Icon vorhanden' });
-      else findings.design.push({ level: 'warn', msg: 'Kein Favicon erkannt' });
-
-      steps.push({ id: 'design', label: 'Design & visuelle Wirkung', ok: true });
-
-      // Trust / security surface in markup
-      const blankExt = [...doc.querySelectorAll('a[target="_blank"]')].filter((a) => {
-        const rel = (a.getAttribute('rel') || '').toLowerCase();
-        return !rel.includes('noopener') && !rel.includes('noreferrer');
-      }).length;
-      if (blankExt) findings.trust.push({ level: 'warn', msg: `${blankExt} target=_blank ohne noopener/noreferrer — Tab‑Hijacking‑Risiko` });
-
-      let isHttps = false;
-      try {
-        isHttps = new URL(pageUrl).protocol === 'https:';
-      } catch {
-        isHttps = pageUrl.startsWith('https://');
-      }
-      if (isHttps) {
-        const httpLinks = [...doc.querySelectorAll('a[href^="http:"]')].length;
-        if (httpLinks) findings.trust.push({ level: 'error', msg: `${httpLinks} http‑Links auf https‑Seite — Mixed‑Content / Vertrauen` });
-      }
-
-      const extScripts = [...doc.querySelectorAll('script[src]')];
-      const noSri = extScripts.filter((s) => !s.getAttribute('integrity')).length;
-      if (noSri > 5) findings.trust.push({ level: 'warn', msg: `${noSri} externe Skripte ohne SRI integrity — Supply‑Chain‑Risiko` });
-
-      steps.push({ id: 'trust', label: 'Sicherheit & Vertrauen (Markup)', ok: !findings.trust.some((f) => f.level === 'error') });
-
-      return {
-        doc,
-        findings,
-        steps,
-        stats: {
-          titleLen: title.length,
-          descLen: desc?.length || 0,
-          imgCount: imgs.length,
-          missingAlt,
-          headingCount: levels.length,
-          scripts,
-          styles,
-          parseMs,
-          wordCount,
-          wowPts,
-          netTimings: netTimings ? { ...netTimings } : null,
-          htmlKb,
-        },
-      };
-    }
-
-    function scoreAudit(findings) {
-      const weights = { seo: 0.28, performance: 0.26, structure: 0.24, experience: 0.22 };
-      function bucketScore(items) {
-        if (!items.length) return 78;
-        let s = 100;
-        items.forEach((f) => {
-          if (f.level === 'error') s -= 20;
-          else if (f.level === 'warn') s -= 8;
-        });
-        return Math.max(0, Math.min(100, s));
-      }
-
-      const seoScore = bucketScore([
-        ...findings.meta,
-        ...findings.images,
-        ...findings.headings,
-        ...findings.advanced_seo,
-      ]);
-      const perfScore = bucketScore([...findings.performance, ...findings.loading]);
-      const structScore = bucketScore([...findings.structure, ...findings.ux_ia]);
-      const expScore = bucketScore([...findings.design, ...findings.trust]);
-
-      const total = Math.round(
-        seoScore * weights.seo
-        + perfScore * weights.performance
-        + structScore * weights.structure
-        + expScore * weights.experience,
-      );
-      return {
-        total,
-        dimensions: {
-          seo: Math.round(seoScore),
-          performance: Math.round(perfScore),
-          structure: Math.round(structScore),
-          experience: Math.round(expScore),
-        },
-      };
-    }
-
-    function escapeHtml(s) {
-      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-
-    function buildPriorityList(findings) {
-      const keys = ['loading', 'meta', 'advanced_seo', 'images', 'headings', 'performance', 'structure', 'ux_ia', 'design', 'trust'];
-      const rows = [];
-      keys.forEach((k) => {
-        (findings[k] || []).forEach((f) => {
-          if (f.level === 'error' || f.level === 'warn') {
-            rows.push({ sev: f.level === 'error' ? 0 : 1, cat: k, msg: f.msg });
-          }
-        });
-      });
-      rows.sort((a, b) => a.sev - b.sev || a.msg.localeCompare(b.msg));
-      return rows.slice(0, 24);
-    }
-
-    function renderPriorityList(findings) {
-      const rows = buildPriorityList(findings);
-      const ol = $('priorityList');
-      if (!rows.length) {
-        ol.innerHTML = '<li class="text-neutral-500 list-none -ml-4">Keine kritischen oder mittleren Befunde — weiter optimieren nach „OK“‑Hinweisen im Deep Dive.</li>';
-        return;
-      }
-      ol.innerHTML = rows.map((r) => {
-        const tag = r.sev === 0 ? '<span class="text-red-400 font-mono text-[10px] mr-2">ERR</span>' : '<span class="text-amber-300/90 font-mono text-[10px] mr-2">WRN</span>';
-        return `<li class="leading-snug">${tag}${escapeHtml(r.msg)}</li>`;
-      }).join('');
-    }
-
-    function renderGauge(score) {
-      const w = 144;
-      const h = 88;
-      const cx = w / 2;
-      const cy = h - 8;
-      const r = 56;
-      const minA = Math.PI;
-      const maxA = 2 * Math.PI;
-      const t = score / 100;
-      const angle = minA + t * (maxA - minA);
-      const x = cx + r * Math.cos(angle);
-      const y = cy + r * Math.sin(angle);
-      const col = score >= 75 ? '#c8f135' : score >= 50 ? '#d4a017' : '#c45c5c';
-      $('gaugeWrap').innerHTML = `
-        <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-label="Score ${score}">
-          <path d="M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}" fill="none" stroke="#1a1a1a" stroke-width="8" stroke-linecap="round"/>
-          <path d="M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${x} ${y}" fill="none" stroke="${col}" stroke-width="8" stroke-linecap="round"/>
-          <text x="${cx}" y="${cy - 4}" text-anchor="middle" fill="#fafafa" font-size="22" font-family="JetBrains Mono, monospace" font-weight="600">${score}</text>
-        </svg>`;
-      let band = 'Kritisch';
-      if (score >= 85) band = 'Exzellent — Enterprise‑Niveau';
-      else if (score >= 70) band = 'Stark — Feintuning möglich';
-      else if (score >= 50) band = 'Solide — Priorisierte Fixes';
-      $('scoreBand').textContent = band;
-    }
-
-    function renderDimBars(dims) {
-      const rows = [
-        { k: 'seo', label: 'SEO & SERP‑Tiefe' },
-        { k: 'performance', label: 'Performance & Ladezeit' },
-        { k: 'structure', label: 'Struktur & UX / IA' },
-        { k: 'experience', label: 'Design & Vertrauen' },
-      ];
-      $('dimBars').innerHTML = rows.map(({ k, label }) => {
-        const v = dims[k];
-        return `<div>
-            <div class="flex justify-between text-[11px] font-mono text-neutral-400 mb-1"><span>${label}</span><span class="text-accent">${v}</span></div>
-            <div class="h-1.5 rounded-full bg-line overflow-hidden">
-              <div class="h-full rounded-full bg-accent/90 transition-all duration-700" style="width:${v}%"></div>
-            </div>
-          </div>`;
-      }).join('');
-    }
-
-    function renderDeepDive(findings, stats, via) {
-      const block = (title, items) => {
-        if (!items.length) return `<div><p class="text-neutral-500 mb-1">${title}</p><p>—</p></div>`;
-        const lis = items.map((i) => `<li class="mb-1 ${i.level === 'error' ? 'text-red-300' : i.level === 'warn' ? 'text-amber-200/90' : 'text-emerald-300/90'}">${escapeHtml(i.msg)}</li>`).join('');
-        return `<div><p class="text-white font-semibold mb-2 text-[11px] uppercase tracking-wider">${title}</p><ul class="list-disc pl-4 space-y-0.5">${lis}</ul></div>`;
-      };
-      const nt = stats.netTimings;
-      const timingRows = nt
-        ? `<div class="sm:col-span-2 rounded border border-line/80 bg-black/30 p-3 mb-2">
-            <p class="text-[10px] font-mono text-accent uppercase tracking-wider mb-2">Netzwerk‑Messung (dieser Abruf)</p>
-            <div class="grid sm:grid-cols-3 gap-2 text-[11px] font-mono text-neutral-400">
-              <div>TTFB: <span class="text-neutral-200">${nt.ttfbMs} ms</span></div>
-              <div>Payload: <span class="text-neutral-200">${nt.bodyMs} ms</span></div>
-              <div>Gesamt: <span class="text-neutral-200">${nt.totalMs} ms</span> · ${nt.bytesApprox != null ? (nt.bytesApprox / 1024).toFixed(1) + ' KB' : '—'}</div>
-            </div>${nt.note ? `<p class="text-[10px] text-neutral-500 mt-1">${escapeHtml(nt.note)}</p>` : ''}</div>`
-        : '<div class="sm:col-span-2 text-[11px] text-neutral-500">Kein Netzwerk‑Timing (HTML‑Einfügen).</div>';
-      $('deepDiveContent').innerHTML = `
-        <p class="text-neutral-500 mb-2">Abrufmodus: <span class="text-neutral-300">${escapeHtml(via)}</span></p>
-        <div class="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-[11px] font-mono text-neutral-400 mb-4">
-          ${timingRows}
-          <div>DOM‑Parse: <span class="text-neutral-200">${stats.parseMs} ms</span></div>
-          <div>Wörter (sichtbar): <span class="text-neutral-200">${stats.wordCount}</span></div>
-          <div>Wow‑Heuristik‑Punkte: <span class="text-neutral-200">${stats.wowPts}</span></div>
-          <div>Titel / Desc Zeichen: <span class="text-neutral-200">${stats.titleLen} / ${stats.descLen}</span></div>
-          <div>Bilder (ohne alt): <span class="text-neutral-200">${stats.imgCount} (${stats.missingAlt})</span></div>
-          <div>Überschriften / HTML: <span class="text-neutral-200">${stats.headingCount} / ${stats.htmlKb} KB</span></div>
-          <div>Skripte / CSS: <span class="text-neutral-200">${stats.scripts} / ${stats.styles}</span></div>
-        </div>
-        ${block('Ladezeit & Abruf', findings.loading)}
-        ${block('Meta & SERP', findings.meta)}
-        ${block('SEO‑Tiefe', findings.advanced_seo)}
-        ${block('Bilder', findings.images)}
-        ${block('Überschriften', findings.headings)}
-        ${block('Performance (Ressourcen & HTML)', findings.performance)}
-        ${block('Semantik & Aufbau', findings.structure)}
-        ${block('UX & Informationsarchitektur', findings.ux_ia)}
-        ${block('Design & visuelle Wirkung', findings.design)}
-        ${block('Sicherheit & Vertrauen', findings.trust)}
-      `;
-    }
-
-    async function runCrawlSequence() {
-      const rawUrl = $('urlInput').value.trim();
-      const fallback = $('htmlFallback').value.trim();
-      $('progressPanel').classList.remove('hidden');
-      $('resultsPanel').classList.add('hidden');
-      const ol = $('progressSteps');
-      ol.innerHTML = '';
-      $('progressLabel').textContent = 'Crawl‑Pipeline…';
-
-      let html = '';
-      let pageUrl = rawUrl || 'inline://pasted-html';
-      let via = 'inline';
-      let fetchCtx = { via, timings: null };
-
-      if (fallback) {
-        html = fallback;
-        via = 'html-fallback';
-        fetchCtx = { via, timings: null };
-        pushStep(ol, 'HTML‑Fallback geladen', true);
-      } else if (rawUrl) {
-        try {
-          pushStep(ol, 'Ressource wird abgerufen (Direkt / Bridge)…', true);
-          const got = await fetchHtmlRaw(rawUrl);
-          html = got.html;
-          via = got.via;
-          fetchCtx = { via, timings: got.timings };
-          pushStep(ol, `Antwort erhalten (${via}) — TTFB ${got.timings.ttfbMs} ms, gesamt ${got.timings.totalMs} ms`, true);
-        } catch (e) {
-          pushStep(ol, String(e.message || e), false);
-          $('progressLabel').textContent = 'Abbruch';
-          return;
-        }
-      } else {
-        pushStep(ol, 'Bitte URL oder HTML angeben.', false);
-        return;
-      }
-
-      pushStep(ol, 'Pipeline: Meta → Medien → Überschriften → Performance → SEO‑Tiefe → UX/IA → Design → Sicherheit', true);
-
-      const { findings, steps, stats } = parseHtmlDocument(html, pageUrl, fetchCtx);
-      const { total, dimensions } = scoreAudit(findings);
-
-      lastAuditPayload = {
-        url: pageUrl,
-        score: total,
-        result_json: {
-          version: 2,
-          via,
-          dimensions,
-          findings,
-          stats,
-          priority: buildPriorityList(findings),
-          steps: steps.map((s) => ({ id: s.id, label: s.label, ok: s.ok })),
-          scannedAt: new Date().toISOString(),
-        },
-      };
-
-      $('resultsPanel').classList.remove('hidden');
-      renderGauge(total);
-      renderDimBars(dimensions);
-      renderDeepDive(findings, stats, via);
-      renderPriorityList(findings);
-      $('saveMsg').textContent = '';
-      $('progressLabel').textContent = 'Scan abgeschlossen';
-    }
-
-    function pushStep(ol, text, ok) {
-      const li = document.createElement('li');
-      li.className = 'flex items-start gap-2 ' + (ok ? 'text-neutral-300' : 'text-red-400');
-      li.innerHTML = `<span class="mt-0.5">${ok ? '✓' : '✕'}</span><span>${text}</span>`;
-      ol.appendChild(li);
-    }
-
-    // --- Events ---
-
-    $('btnAuth').addEventListener('click', () => promptLogin());
-    $('btnSignOut').addEventListener('click', () => signOut());
-    $('btnCrawl').addEventListener('click', () => runCrawlSequence());
-
-    $('btnDeepDive').addEventListener('click', () => {
-      const body = $('deepDiveBody');
-      const collapsedAfter = body.classList.toggle('hidden');
-      $('deepChevron').style.transform = collapsedAfter ? '' : 'rotate(180deg)';
+      if (error) { $('authError').textContent = error.message; $('authError').classList.remove('hidden'); }
+      else await refreshUser();
     });
 
-    $('btnPrint').addEventListener('click', () => window.print());
-
-    $('btnSaveCloud').addEventListener('click', async () => {
-      $('saveMsg').textContent = '';
-      if (!lastAuditPayload) {
-        $('saveMsg').textContent = 'Kein Scan vorhanden.';
+    $('formSignUp').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!sb) return;
+      $('authErrorUp').classList.remove('text-lime');
+      $('authErrorUp').classList.add('text-red-400');
+      $('authErrorUp').classList.add('hidden');
+      const pw = $('upPass').value;
+      if (pw.length < 8) {
+        $('authErrorUp').textContent = 'Passwort mindestens 8 Zeichen.';
+        $('authErrorUp').classList.remove('hidden');
         return;
       }
-      try {
-        const row = await saveAudit(lastAuditPayload);
-        $('saveMsg').textContent = 'Gespeichert — ID: ' + (row?.id || 'ok');
-        loadHistoryPreview();
-      } catch (e) {
-        $('saveMsg').textContent = 'Fehler: ' + (e.message || e);
+      const { error } = await sb.auth.signUp({
+        email: $('upEmail').value.trim(),
+        password: pw,
+        options: { emailRedirectTo: window.location.origin + window.location.pathname },
+      });
+      if (error) { $('authErrorUp').textContent = error.message; $('authErrorUp').classList.remove('hidden'); }
+      else {
+        $('authErrorUp').textContent = 'Checken Sie Ihr Postfach zur Bestätigung (falls aktiviert).';
+        $('authErrorUp').classList.remove('hidden');
+        $('authErrorUp').classList.remove('text-red-400');
+        $('authErrorUp').classList.add('text-lime');
       }
+    });
+
+    $('tabSignIn').addEventListener('click', () => showAuthTab('signin'));
+    $('tabSignUp').addEventListener('click', () => showAuthTab('signup'));
+
+    $('btnNavSignOut').addEventListener('click', async () => {
+      if (!sb) return;
+      await sb.auth.signOut();
+      STATE.user = null;
+      setView('landing');
+      syncUserUi();
+    });
+
+    $('btnNavAuth').addEventListener('click', () => setView('auth'));
+    $('heroCtaPrimary').addEventListener('click', () => setView('auth'));
+    $('btnNavCta').addEventListener('click', () => {
+      if (STATE.user) setView('dashboard');
+      else setView('auth');
+    });
+    $('btnNavDashboard').addEventListener('click', () => setView('dashboard'));
+    $('navLogo').addEventListener('click', () => setView('landing'));
+    $('authBack').addEventListener('click', () => setView('landing'));
+    document.querySelectorAll('[data-nav="landing"]').forEach((b) => b.addEventListener('click', () => { setView('landing'); document.getElementById('features')?.scrollIntoView(); }));
+    document.querySelectorAll('[data-nav="pricing"]').forEach((b) => b.addEventListener('click', () => { setView('landing'); document.getElementById('pricing')?.scrollIntoView(); }));
+    document.querySelectorAll('.pricing-cta').forEach((b) => b.addEventListener('click', () => setView('auth')));
+
+    $('btnPerformAudit').addEventListener('click', () => performAudit());
+    $('btnSaveAudit').addEventListener('click', async () => {
+      if (!STATE.lastScores || !STATE.user) return;
+      try {
+        await sb.from('audits').insert({ user_id: STATE.user.id, url: STATE.lastScores.pageUrl, scores_json: STATE.lastScores });
+        $('dashSaveMsg').textContent = 'Gespeichert.';
+        loadDashHistory();
+      } catch (e) {
+        $('dashSaveMsg').textContent = e.message;
+      }
+    });
+    $('btnPrint').addEventListener('click', () => window.print());
+    $('btnToggleDeep').addEventListener('click', () => {
+      $('dashDeepBody').classList.toggle('hidden');
+      $('iconDeep').style.transform = $('dashDeepBody').classList.contains('hidden') ? '' : 'rotate(180deg)';
     });
 
     initSupabase();
-
-    /** Public hooks for future Gemini / modules */
-    window.AuditFlow = { initSupabase, saveAudit, runCrawl: runCrawlSequence };
+    refreshUser().then(() => {
+      if (STATE.user) setView('dashboard');
+      else setView('landing');
+      icons();
+    });
   </script>
 </body>
 </html>

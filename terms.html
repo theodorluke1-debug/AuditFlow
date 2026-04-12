@@ -1,17 +1,164 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Nutzungsbedingungen — AuditFlow</title>
-  <meta name="robots" content="noindex">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect fill='%23030303' width='32' height='32' rx='6'/><text x='16' y='21' text-anchor='middle' font-size='14' fill='%23c8f135' font-family='system-ui'>A</text></svg>">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="robots" content="noindex"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #c8f135; min-height: 100vh; padding: 2rem 1rem; }
+    nav { max-width: 720px; margin: 0 auto 2.5rem; display: flex; gap: 1.5rem; font-size: 13px; }
+    nav a { color: #888780; text-decoration: none; }
+    nav a:hover { color: #c8f135; }
+    .container { max-width: 720px; margin: 0 auto; }
+    h1 { font-size: 28px; font-weight: 600; color: #ffffff; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+    .subtitle { font-size: 14px; color: #888780; margin-bottom: 2.5rem; }
+    h2 { font-size: 16px; font-weight: 600; color: #ffffff; margin: 2rem 0 0.75rem; }
+    p { font-size: 15px; color: #c8c8c0; line-height: 1.7; margin-bottom: 0.75rem; }
+    ul { margin: 0.5rem 0 0.75rem 1.25rem; }
+    ul li { font-size: 15px; color: #c8c8c0; line-height: 1.7; margin-bottom: 0.25rem; }
+    a { color: #c8f135; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .card { background: #111110; border: 1px solid #222221; border-radius: 10px; padding: 1.5rem; margin-bottom: 1rem; }
+    .highlight { background: #1a1f0a; border: 1px solid #2a3010; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .highlight p { color: #a0b870; font-size: 14px; }
+    .important { background: #1a1008; border: 1px solid #2a1f08; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .important p { color: #c8a070; font-size: 14px; }
+    footer { max-width: 720px; margin: 3rem auto 0; padding-top: 1.5rem; border-top: 1px solid #222221; font-size: 12px; color: #444441; }
+  </style>
 </head>
-<body class="bg-[#030303] text-zinc-300 min-h-screen font-sans antialiased p-8 max-w-3xl mx-auto">
-  <p class="text-xs font-mono text-[#c8f135] mb-4 flex flex-wrap gap-x-3 gap-y-1"><a href="index.html" class="underline hover:text-white">Start (DE)</a><a href="index-en.html" class="underline hover:text-white">Home (EN)</a></p>
-  <h1 class="text-2xl font-semibold text-white mb-6">Nutzungsbedingungen (Platzhalter)</h1>
-  <p class="text-sm leading-relaxed text-zinc-400 mb-4">Platzhalter für Ihre AGB / Terms of Service inkl. Leistungsbeschreibung, Haftung, Zahlung, Kündigung und Streitbeilegung.</p>
-  <p class="text-sm text-zinc-500">Kontakt: <a href="mailto:theodor.luke@icloud.com" class="text-[#c8f135] underline">support@auditflow.io</a></p>
+<body>
+
+  <nav>
+    <a href="index.html">← Start (DE)</a>
+    <a href="index-en.html">Home (EN)</a>
+  </nav>
+
+  <div class="container">
+    <h1>Nutzungsbedingungen</h1>
+    <p class="subtitle">Stand: April 2026 · AuditFlow, betrieben von Theodor Luke</p>
+
+    <div class="highlight">
+      <p>Kurzfassung: Nutze AuditFlow fair, nicht für illegale Zwecke. Wir bieten 60 Tage Geld-zurück-Garantie. Als Minderjähriger benötige ich für rechtsverbindliche Verträge die Zustimmung meiner Eltern.</p>
+    </div>
+
+    <div class="important">
+      <p><strong style="color:#e0b080;">Hinweis zur Minderjährigkeit:</strong> Der Betreiber ist minderjährig (15 Jahre). Verträge mit Minderjährigen bedürfen gemäß §§ 106 ff. BGB der Zustimmung des gesetzlichen Vertreters. Durch die Nutzung kostenpflichtiger Dienste bestätigst du, dass du volljährig bist oder die Zustimmung deines gesetzlichen Vertreters vorliegt.</p>
+    </div>
+
+    <div class="card">
+      <h2>1. Geltungsbereich</h2>
+      <p>Diese Nutzungsbedingungen gelten für die Nutzung von AuditFlow (nachfolgend „Dienst"), betrieben von Theodor Luke, Am Hasensprung 85, 60000 Frankfurt am Main, Deutschland (nachfolgend „Anbieter").</p>
+      <p>Mit der Registrierung oder Nutzung des Dienstes akzeptierst du diese Bedingungen. Wenn du die Bedingungen nicht akzeptierst, darf der Dienst nicht genutzt werden.</p>
+    </div>
+
+    <div class="card">
+      <h2>2. Leistungsbeschreibung</h2>
+      <p>AuditFlow ist ein webbasiertes Tool zur technischen Analyse von Websites. Der Dienst umfasst:</p>
+      <ul>
+        <li>Automatisierte Audits von öffentlich zugänglichen URLs (SEO, Performance, Security, Struktur)</li>
+        <li>Speicherung von Audit-Ergebnissen in der Nutzer-Datenbank (Supabase)</li>
+        <li>Export von Berichten als PDF (ab Pro-Plan)</li>
+        <li>White-Label-Funktionen für Agenturen (ab Pro-Plan)</li>
+        <li>Competitive Benchmarking (Vergleich zweier URLs)</li>
+      </ul>
+      <p>Der Dienst ist ausschließlich für professionelle Nutzer (B2B) konzipiert und nicht für Verbraucher im Sinne des § 13 BGB bestimmt.</p>
+    </div>
+
+    <div class="card">
+      <h2>3. Registrierung & Konto</h2>
+      <p>Für die Nutzung des vollen Funktionsumfangs ist eine Registrierung erforderlich. Du bist verpflichtet:</p>
+      <ul>
+        <li>Wahrheitsgemäße Angaben bei der Registrierung zu machen</li>
+        <li>Dein Passwort geheim zu halten und niemanden Zugang zu deinem Konto zu gewähren</li>
+        <li>Den Anbieter unverzüglich zu informieren, wenn du einen Missbrauch deines Kontos vermutest</li>
+      </ul>
+      <p>Ein Konto ist nicht übertragbar. Pro Person ist nur ein Konto erlaubt.</p>
+    </div>
+
+    <div class="card">
+      <h2>4. Preise & Zahlung</h2>
+      <p>Die aktuellen Preise sind auf der <a href="index.html#pricing">Preisseite</a> einsehbar. Es gelten folgende Konditionen:</p>
+      <ul>
+        <li><strong>Free-Plan:</strong> Kostenlos, 5 Audits pro Monat, kein Zahlungsmittel erforderlich</li>
+        <li><strong>Pro-Plan (€49/Monat):</strong> Monatliche Abrechnung, jederzeit kündbar zum Ende des Abrechnungszeitraums</li>
+        <li><strong>LTD (Lifetime Deal, €99 einmalig):</strong> Einmalzahlung, kein wiederkehrender Beitrag</li>
+      </ul>
+      <p>Alle Preise sind Nettopreise zzgl. gesetzlicher Mehrwertsteuer. Zahlungen werden über Stripe Inc. abgewickelt. Es gelten die Zahlungsbedingungen von Stripe.</p>
+    </div>
+
+    <div class="card">
+      <h2>5. Widerrufsrecht & Rückerstattung</h2>
+      <p>Wir gewähren eine <strong style="color:#c8f135;">60-tägige Geld-zurück-Garantie</strong> auf alle kostenpflichtigen Pläne — ohne Angabe von Gründen.</p>
+      <p>Rückerstattungsanfragen richten Sie bitte an: <a href="mailto:support@auditflow.io">support@auditflow.io</a></p>
+      <p>Hinweis: Für digitale Inhalte, mit deren Ausführung bereits begonnen wurde, kann das gesetzliche Widerrufsrecht erlöschen. Die freiwillige 60-Tage-Garantie bleibt davon unberührt.</p>
+    </div>
+
+    <div class="card">
+      <h2>6. Kündigung</h2>
+      <p>Du kannst deinen Account jederzeit löschen. Bei kostenpflichtigen Plänen läuft der Zugang bis zum Ende des bezahlten Zeitraums. Eine anteilige Rückerstattung für nicht genutzte Monate ist nicht vorgesehen, außer im Rahmen der 60-Tage-Garantie.</p>
+      <p>Der Anbieter behält sich das Recht vor, Accounts bei Verstößen gegen diese Bedingungen zu sperren oder zu löschen.</p>
+    </div>
+
+    <div class="card">
+      <h2>7. Erlaubte & verbotene Nutzung</h2>
+      <p>Erlaubt ist die Nutzung für:</p>
+      <ul>
+        <li>Technische Analyse eigener oder von Kunden beauftragter Websites</li>
+        <li>Erstellung von Agentur-Reports für Kunden</li>
+        <li>Wettbewerbsanalysen im üblichen geschäftlichen Rahmen</li>
+      </ul>
+      <p>Verboten ist:</p>
+      <ul>
+        <li>Massenhafte automatisierte Abfragen ohne vorherige schriftliche Genehmigung</li>
+        <li>Nutzung zum Angriff, zur Überlastung oder zum Schaden Dritter</li>
+        <li>Weiterverkauf oder Sublizenzierung des Dienstes ohne Zustimmung</li>
+        <li>Reverse Engineering oder Extraktion des Quellcodes</li>
+        <li>Umgehung technischer Schutzmaßnahmen</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>8. Verfügbarkeit & Haftung</h2>
+      <p>Der Anbieter bemüht sich um eine möglichst hohe Verfügbarkeit des Dienstes, kann diese jedoch nicht garantieren. Geplante Wartungsarbeiten werden nach Möglichkeit angekündigt.</p>
+      <p>Die Haftung des Anbieters ist auf Vorsatz und grobe Fahrlässigkeit beschränkt. Eine Haftung für mittelbare Schäden, entgangene Gewinne oder Datenverluste ist ausgeschlossen, soweit gesetzlich zulässig.</p>
+      <p>Die Audit-Ergebnisse sind technische Hinweise und keine Rechts-, SEO- oder Unternehmensberatung.</p>
+    </div>
+
+    <div class="card">
+      <h2>9. Geistiges Eigentum</h2>
+      <p>Alle Rechte an der Software, dem Design und den Inhalten von AuditFlow liegen beim Anbieter. Die Nutzung begründet kein Eigentumsrecht an der Software.</p>
+      <p>Die von dir erstellten Audit-Reports gehören dir. Du räumst dem Anbieter keine Rechte an deinen eingegebenen URLs oder gespeicherten Ergebnissen ein.</p>
+    </div>
+
+    <div class="card">
+      <h2>10. Datenschutz</h2>
+      <p>Die Verarbeitung personenbezogener Daten erfolgt gemäß unserer <a href="privacy.html">Datenschutzerklärung</a>, die Bestandteil dieser Nutzungsbedingungen ist.</p>
+    </div>
+
+    <div class="card">
+      <h2>11. Änderungen der Bedingungen</h2>
+      <p>Der Anbieter behält sich vor, diese Nutzungsbedingungen mit angemessener Frist (mindestens 30 Tage) zu ändern. Registrierte Nutzer werden per E-Mail informiert. Die weitere Nutzung nach Ablauf der Frist gilt als Zustimmung zu den neuen Bedingungen.</p>
+    </div>
+
+    <div class="card">
+      <h2>12. Anwendbares Recht & Gerichtsstand</h2>
+      <p>Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts. Gerichtsstand ist, soweit gesetzlich zulässig, Frankfurt am Main.</p>
+      <p>Für Verbraucher innerhalb der EU gilt vorrangig das Recht des Wohnsitzlandes des Verbrauchers, soweit dieses zwingend anwendbar ist.</p>
+    </div>
+
+    <div class="card">
+      <h2>13. Kontakt</h2>
+      <p>Bei Fragen zu diesen Nutzungsbedingungen:</p>
+      <p>Theodor Luke · Am Hasensprung 85 · 60000 Frankfurt am Main<br/>
+      E-Mail: <a href="mailto:support@auditflow.io">support@auditflow.io</a></p>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2026 AuditFlow · <a href="imprint.html">Impressum</a> · <a href="privacy.html">Datenschutz</a></p>
+  </footer>
+
 </body>
 </html>

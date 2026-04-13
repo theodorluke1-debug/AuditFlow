@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Magic Link to AuditFlow</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f4f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f0;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="520" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;border:1px solid #e0dfd8;overflow:hidden;">
+
+          <!-- Header -->
+          <tr>
+            <td style="padding:32px 40px 24px;border-bottom:1px solid #f0efe8;">
+              <span style="font-size:18px;font-weight:600;color:#111110;letter-spacing:-0.3px;">AuditFlow</span>
+              <span style="font-size:11px;color:#888780;margin-left:8px;background:#f4f4f0;padding:2px 8px;border-radius:4px;font-weight:500;">B2B</span>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:36px 40px 28px;">
+              <h2 style="margin:0 0 12px;font-size:22px;font-weight:600;color:#111110;letter-spacing:-0.4px;">
+                Ihr Magic Link
+              </h2>
+              <p style="margin:0 0 24px;font-size:15px;color:#5f5e5a;line-height:1.6;">
+                Klicken Sie auf den Button unten um sich bei AuditFlow anzumelden — der Link ist <strong style="color:#111110;">60 Minuten</strong> gültig und kann nur einmal verwendet werden.
+              </p>
+
+              <!-- CTA Button -->
+              <table cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
+                <tr>
+                  <td style="background:#111110;border-radius:8px;">
+                    <a href="{{ .ConfirmationURL }}"
+                       style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:500;color:#ffffff;text-decoration:none;letter-spacing:-0.1px;">
+                      Jetzt einloggen →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Fallback URL -->
+              <p style="margin:0 0 6px;font-size:12px;color:#888780;">
+                Button funktioniert nicht? Kopieren Sie diesen Link:
+              </p>
+              <p style="margin:0;font-size:12px;color:#378ADD;word-break:break-all;">
+                {{ .ConfirmationURL }}
+              </p>
+            </td>
+          </tr>
+
+          <!-- Divider + Security Note -->
+          <tr>
+            <td style="padding:20px 40px 28px;border-top:1px solid #f0efe8;">
+              <table cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td style="background:#f8f7f2;border-radius:8px;padding:14px 16px;">
+                    <p style="margin:0;font-size:12px;color:#888780;line-height:1.6;">
+                      <strong style="color:#5f5e5a;">Sicherheitshinweis:</strong>
+                      Wenn Sie diesen Link nicht angefordert haben, ignorieren Sie diese E-Mail einfach. Ihr Konto ist sicher.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:20px 40px 28px;border-top:1px solid #f0efe8;">
+              <p style="margin:0 0 4px;font-size:12px;color:#b4b2a9;">
+                © 2026 AuditFlow · Technical Web Intelligence für Agenturen
+              </p>
+              <p style="margin:0;font-size:12px;">
+                <a href="https://theodorluke1-debug.github.io/AuditFlow/" style="color:#888780;text-decoration:none;">Website</a>
+                <span style="color:#d3d1c7;margin:0 6px;">·</span>
+                <a href="https://theodorluke1-debug.github.io/AuditFlow/privacy.html" style="color:#888780;text-decoration:none;">Datenschutz</a>
+                <span style="color:#d3d1c7;margin:0 6px;">·</span>
+                <a href="mailto:support@auditflow.io" style="color:#888780;text-decoration:none;">support@auditflow.io</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Seite nicht gefunden | AuditFlow</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    
+    body { 
+      background-color: #050505; 
+      color: #ededed; 
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+    }
+
+    .glow-bg {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(200, 241, 53, 0.08) 0%, rgba(5, 5, 5, 0) 70%);
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .floating {
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-6">
+
+  <div class="glow-bg"></div>
+
+  <div class="max-w-md w-full text-center relative z-10">
+    <!-- Visual Element -->
+    <div class="floating mb-12">
+      <svg class="w-24 h-24 mx-auto text-[#c8f135]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+      </svg>
+    </div>
+
+    <!-- Main Message -->
+    <h1 class="text-3xl font-bold tracking-tight mb-4 text-white">Hier endet der Pfad.</h1>
+    <p class="text-gray-400 text-lg mb-10 leading-relaxed font-light">
+      Diese Seite existiert nicht oder wurde verschoben. Keine Sorge, wir bringen dich zurück auf Kurs.
+    </p>
+
+    <!-- UI Buttons -->
+    <div class="space-y-4">
+      <a href="index.html" class="block w-full bg-[#c8f135] text-black font-semibold py-4 px-6 rounded-2xl hover:bg-[#d9ff4d] transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-[#c8f135]/10">
+        Zurück zum Dashboard
+      </a>
+      <p class="text-xs text-gray-600 font-mono tracking-widest mt-12">ERROR_CODE: 404_PAGE_MISSING</p>
+    </div>
+  </div>
+
+  <!-- Global Error Handler Script -->
+  <script>
+    // Fängt technische Fehler ab und leitet ggf. um
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error("Technischer Fehler abgefangen:", message);
+      // Hier könnte man bei schweren Fehlern automatisch auf 404 umleiten
+      return false;
+    };
+
+    window.onunhandledrejection = function(event) {
+      console.error("Promise Rejection abgefangen:", event.reason);
+    };
+  </script>
+</body>
+</html>

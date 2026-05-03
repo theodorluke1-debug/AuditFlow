@@ -1,7 +1,7 @@
 /**
  * auditflow.js
  * Wird NUR von index.html (Landing Page) verwendet.
- * auditflow.html hat sein eigenes inline Script — diese Datei nicht dort einbinden.
+ * auditflow.html hat sein eigenes inline Script â€” diese Datei nicht dort einbinden.
  */
 
 (function () {
@@ -21,7 +21,7 @@
 
   function icons() { if (window.lucide) lucide.createIcons(); }
 
-  // ── PAGE LOADER ──────────────────────────────────────
+  // â”€â”€ PAGE LOADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function initPageLoader() {
     const loader = $('pageLoader');
     if (!loader) return;
@@ -35,7 +35,7 @@
     setTimeout(hide, 3000);
   }
 
-  // ── SUPABASE ─────────────────────────────────────────
+  // â”€â”€ SUPABASE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function initSupabase() {
     if (!window.supabase?.createClient) return;
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
@@ -61,7 +61,7 @@
     icons();
   }
 
-  // ── AUTH MODAL ───────────────────────────────────────
+  // â”€â”€ AUTH MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function openAuthModal() {
     const el = $('authModal');
     if (!el) { window.location.href = DASH; return; }
@@ -82,7 +82,7 @@
     });
   }
 
-  // ── FETCH HELPERS ────────────────────────────────────
+  // â”€â”€ FETCH HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async function fetchBridge(url) {
     const u = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
     const t0 = performance.now();
@@ -99,7 +99,7 @@
     return { html: res.html, timings: { totalMs: res.totalMs, bytesApprox: res.bytes }, status: 200, pageUrl: url };
   }
 
-  // ── DEMO AUDIT ───────────────────────────────────────
+  // â”€â”€ DEMO AUDIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async function runDemoAudit() {
     const input = $('demoUrl');
     const out   = $('demoResults');
@@ -112,7 +112,7 @@
 
     errEl?.classList.add('hidden');
     out.innerHTML = '';
-    if (btn) { btn.textContent = LANG === 'en' ? 'Analyzing…' : 'Läuft…'; btn.disabled = true; }
+    if (btn) { btn.textContent = LANG === 'en' ? 'Analyzingâ€¦' : 'LÃ¤uftâ€¦'; btn.disabled = true; }
 
     try {
       const res = await fetchPage(url);
@@ -125,7 +125,7 @@
         { label: L?'Overall Score':'Gesamt-Score', value: score + '/100', ok: score >= 75 },
         { label: 'Security',             value: L?'Enterprise':'Sicher', ok: true },
         { label: 'SEO',                  value: L?'Optimized':'Optimiert', ok: true },
-        { label: 'GDPR / DSGVO',         value: L?'Checked':'Geprüft', ok: true },
+        { label: 'GDPR / DSGVO',         value: L?'Checked':'GeprÃ¼ft', ok: true },
         { label: L?'Status':'HTTP-Status', value: code, ok: code === '200' },
         { label: L?'Load time':'Ladezeit', value: ms + ' ms', ok: parseInt(ms) < 3000 },
       ];
@@ -138,10 +138,10 @@
               <p class="text-sm font-semibold ${r.ok ? 'text-lime' : 'text-red-400'}">${esc(r.value)}</p>
             </div>`).join('')}
         </div>
-        <p class="text-xs text-zinc-600">${L ? 'Full Command-Center report available after login.' : 'Vollständiger Command-Center Report nach Anmeldung verfügbar.'}</p>`;
+        <p class="text-xs text-zinc-600">${L ? 'Full Command-Center report available after login.' : 'VollstÃ¤ndiger Command-Center Report nach Anmeldung verfÃ¼gbar.'}</p>`;
     } catch(e) {
       if (errEl) {
-        errEl.textContent = LANG === 'en' ? 'Audit failed. Check URL.' : 'Audit fehlgeschlagen. URL prüfen.';
+        errEl.textContent = LANG === 'en' ? 'Audit failed. Check URL.' : 'Audit fehlgeschlagen. URL prÃ¼fen.';
         errEl.classList.remove('hidden');
       }
     } finally {
@@ -149,7 +149,7 @@
     }
   }
 
-  // ── HERO ANIMATION ───────────────────────────────────
+  // â”€â”€ HERO ANIMATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function initHeroAnim() {
     const urlEl   = $('animUrl');
     const statusEl = $('animStatus');
@@ -158,10 +158,10 @@
 
     const fullUrl = LANG === 'en' ? 'https://client.com' : 'https://kunde.de';
     const steps = [
-      { t: 0,    run: () => { urlEl.textContent = ''; statusEl.textContent = LANG==='en'?'Enter a URL…':'URL eingeben…'; gridEl.classList.add('opacity-0'); } },
+      { t: 0,    run: () => { urlEl.textContent = ''; statusEl.textContent = LANG==='en'?'Enter a URLâ€¦':'URL eingebenâ€¦'; gridEl.classList.add('opacity-0'); } },
       { t: 400,  run: () => { let i=0; const tick=()=>{ if(i<=fullUrl.length){urlEl.textContent=fullUrl.slice(0,i++);setTimeout(tick,38);} }; tick(); } },
-      { t: 2200, run: () => { statusEl.textContent = LANG==='en'?'Auditing…':'Audit läuft…'; } },
-      { t: 2800, run: () => { statusEl.textContent = LANG==='en'?'Done ✓':'Fertig ✓'; gridEl.classList.remove('opacity-0'); } },
+      { t: 2200, run: () => { statusEl.textContent = LANG==='en'?'Auditingâ€¦':'Audit lÃ¤uftâ€¦'; } },
+      { t: 2800, run: () => { statusEl.textContent = LANG==='en'?'Done âœ“':'Fertig âœ“'; gridEl.classList.remove('opacity-0'); } },
     ];
 
     let timers = [];
@@ -173,7 +173,7 @@
     setInterval(play, 5500);
   }
 
-  // ── FAQ ACCORDION ────────────────────────────────────
+  // â”€â”€ FAQ ACCORDION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function initFaq() {
     document.querySelectorAll('[data-faq-toggle]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -188,7 +188,7 @@
     });
   }
 
-  // ── HEADER SHRINK ────────────────────────────────────
+  // â”€â”€ HEADER SHRINK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function initHeaderShrink() {
     const header = $('siteHeader');
     if (!header) return;
@@ -197,7 +197,7 @@
     onScroll();
   }
 
-  // ── BACK TO TOP ──────────────────────────────────────
+  // â”€â”€ BACK TO TOP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function initBackToTop() {
     const btn = $('btnBackTop');
     if (!btn) return;
@@ -208,7 +208,7 @@
     btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
   }
 
-  // ── NAV & AUTH WIRING ────────────────────────────────
+  // â”€â”€ NAV & AUTH WIRING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function initNav() {
     // Nav links
     document.querySelectorAll('[data-nav]').forEach(btn => {
@@ -327,7 +327,7 @@
       try {
         const { error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: window.location.href } });
         if (error) throw error;
-        alert(LANG === 'en' ? 'Account created! Please check your email.' : 'Konto erstellt! Bitte prüfe deine E-Mails.');
+        alert(LANG === 'en' ? 'Account created! Please check your email.' : 'Konto erstellt! Bitte prÃ¼fe deine E-Mails.');
         closeAuthModal();
       } catch(err) {
         const errEl = $('authErrorUp');
@@ -336,7 +336,7 @@
     });
   }
 
-  // ── INIT ─────────────────────────────────────────────
+  // â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function init() {
     initPageLoader();
     initSupabase();

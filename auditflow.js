@@ -1,12 +1,23 @@
 /**
  * auditflow.js
  * Wird NUR von index.html (Landing Page) verwendet.
+ * auditflow.html hat sein eigenes inline Script â€” diese Datei nicht dort einbinden.
+ *
+ * EnthÃ¤lt:
+ * - Supabase Auth fÃ¼r Landing Page
+ * - Live-Demo (Ã¶ffentliche SchnellprÃ¼fung)
+ * - Hero-Animation
+ * - FAQ Accordion
+ * - Header Shrink / Back-to-Top
+ * - Embed-Snippet-Kopieren
+ * - Navigation zwischen Landing-Views
  */
 
 (function () {
   'use strict';
 
   const LANG = document.documentElement.lang === 'en' ? 'en' : 'de';
+  const HOME = LANG === 'en' ? 'index-en.html' : 'index.html';
   const DASH = 'auditflow.html';
 
   const SUPABASE_URL  = 'https://ojsjhgbxglztjmgmathk.supabase.co';
@@ -20,30 +31,29 @@
 
   function icons() { if (window.lucide) lucide.createIcons(); }
 
-  // ── PAGE LOADER ──────────────────────────────────────
-  function hideLoader() {
+  // â”€â”€ PAGE LOADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  function initPageLoader() {
     const loader = $('pageLoader');
-    if (loader && loader.style.display !== 'none') {
-      loader.style.opacity = '0';
-      loader.style.pointerEvents = 'none';
-      setTimeout(() => { if (loader) loader.style.display = 'none'; }, 500);
-    }
+    if (!loader) return;
+    const hide = () => {
+      loader.classList.add('fade-out');
+      setTimeout(() => { if (loader) loader.style.display = 'none'; }, 450);
+    };
+    if (document.readyState === 'complete') setTimeout(hide, 200);
+    else window.addEventListener('load', () => setTimeout(hide, 200));
   }
 
-  // ── SUPABASE ─────────────────────────────────────────
+  // â”€â”€ SUPABASE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function initSupabase() {
     if (!window.supabase?.createClient) return;
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
       auth: { persistSession: true, autoRefreshToken: true }
     });
-    
-    sb.auth.onAuthStateChange((event, session) => {
+    sb.auth.onAuthStateChange((_e, session) => {
       STATE.user = session?.user ?? null;
       syncUserUi();
-      
-      // WICHTIG: Nur bei explizitem SIGN_IN Event weiterleiten
-      // Verhindert, dass man beim einfachen Neuladen der Landingpage weggeschickt wird
-      if (event === 'SIGNED_IN' && session?.user) {
+      // Wenn eingeloggt und auf Landing â†’ zum Dashboard weiterleiten
+      if (session?.user) {
         window.location.href = DASH;
       }
     });
@@ -51,22 +61,27 @@
 
   function syncUserUi() {
     const u = STATE.user;
+    // Nav-Elemente
     $('btnNavAuth')?.classList.toggle('hidden', !!u);
     $('btnNavSignOut')?.classList.toggle('hidden', !u);
     const ne = $('navUserEmail');
     if (ne) ne.textContent = u?.email || '';
+    // CTA Button Text
     const cta = $('btnNavCta');
-    if (cta) cta.textContent = LANG === 'en' ? (u ? 'Dashboard' : 'Start Audit') : (u ? 'Zum Dashboard' : 'Audit starten');
+    if (cta) cta.textContent = LANG === 'en' ? (u ? 'Dashboard' : 'Start auditing') : (u ? 'Zum Dashboard' : 'Audit starten');
     icons();
   }
 
-  // ── AUTH MODAL ───────────────────────────────────────
+  // â”€â”€ AUTH MODAL (Landing-Page only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function openAuthModal() {
     const el = $('authModal');
-    if (!el) { window.location.href = DASH; return; }
+    if (!el) {
+      // Kein Auth-Modal auf Landing â†’ direkt zum Dashboard
+      window.location.href = DASH;
+      return;
+    }
     el.classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
-    showAuthView('main');
     icons();
   }
 
@@ -75,157 +90,335 @@
     document.body.classList.remove('overflow-hidden');
   }
 
-  function showAuthView(view) {
-    ['main', 'magic', 'pass', 'confirm'].forEach(v => {
-      $(`authView${v.charAt(0).toUpperCase() + v.slice(1)}`)?.classList.toggle('hidden', v !== view);
-    });
+  // â”€â”€ FETCH HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  async function fetchBridge(url) {
+    const u = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const t0 = performance.now();
+    const r = await fetch(u);
+    const t1 = performance.now();
+    const j = await r.json();
+    return { text: j.contents || '', status: r.status, pageStatus: j.status?.http_code ?? null, ms: Math.round(t1 - t0) };
   }
 
-  // ── DEMO AUDIT ───────────────────────────────────────
-  async function runDemoAudit() {
-    const input = $('demoUrl');
-    const out   = $('demoResults');
-    const errEl = $('demoError');
-    const btn   = $('btnDemoStart');
-    if (!input || !out) return;
+  async function fetchPage(url) {
+    const t0 = performance.now();
+    try {
+      const r = await fetch(url, { mode: 'cors', credentials: 'omit', headers: { Accept: 'text/html' } });
+      const t1 = performance.now();
+      if (r.ok) {
+        const html = await r.text();
+        const t2 = performance.now();
+        return { html, via: 'direct', pageStatus: r.status, timings: { ttfbMs: Math.round(t1-t0), totalMs: Math.round(t2-t0) } };
+      }
+    } catch(_) {}
+    const t0b = performance.now();
+    const b = await fetchBridge(url);
+    const t2 = performance.now();
+    return { html: b.text, via: 'bridge', pageStatus: b.pageStatus, timings: { ttfbMs: Math.round(b.ms*.4), totalMs: Math.round(t2-t0b) } };
+  }
 
-    const url = input.value.trim();
-    if (!url) return;
+  // â”€â”€ LIVE DEMO (Landing) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  async function runLandingDemo() {
+    const inp = $('demoUrl');
+    const out = $('demoResults');
+    const errEl = $('demoError');
+    const btn = $('btnDemoStart');
+    if (!inp || !out) return;
+
+    const url = inp.value.trim();
+    if (!url) { inp.focus(); return; }
 
     errEl?.classList.add('hidden');
-    out.innerHTML = '';
-    if (btn) { btn.textContent = LANG === 'en' ? 'Analyzing…' : 'Läuft…'; btn.disabled = true; }
+    out.innerHTML = `<p class="text-sm text-zinc-500 font-mono animate-pulse">${LANG === 'en' ? 'Analyzingâ€¦' : 'Analyse lÃ¤uftâ€¦'}</p>`;
+    if (btn) { btn.textContent = LANG === 'en' ? 'Analyzingâ€¦' : 'LÃ¤uftâ€¦'; btn.disabled = true; }
 
     try {
-      const u = `https://api.allorigins.win/get?url=${encodeURIComponent(url.startsWith('http') ? url : 'https://'+url)}`;
-      const r = await fetch(u);
-      const j = await r.json();
+      const pack = await fetchPage(url);
+      const doc = new DOMParser().parseFromString(pack.html, 'text/html');
+      const hasTitle = !!doc.querySelector('title')?.textContent?.trim();
+      const hasMeta  = [...doc.querySelectorAll('meta')].some(m => (m.getAttribute('name')||'').toLowerCase() === 'description' && m.getAttribute('content')?.trim());
+      const hasH1    = !!doc.querySelector('h1');
+      let https = false;
+      try { https = new URL(url).protocol === 'https:'; } catch(_) {}
+      const code = pack.pageStatus != null ? String(pack.pageStatus) : 'â€”';
+      const ms = pack.timings?.totalMs ?? 'â€”';
+
       const L = LANG === 'en';
-      
+      const rows = [
+        { label: 'HTTPS',                value: https ? (L?'Yes âœ“':'Ja âœ“') : (L?'No âœ—':'Nein âœ—'),   ok: https },
+        { label: L?'Page title':'Titel', value: hasTitle ? (L?'Found':'Gefunden') : (L?'Missing':'Fehlt'), ok: hasTitle },
+        { label: 'Meta Description',     value: hasMeta ? (L?'Found':'Gefunden') : (L?'Missing':'Fehlt'),  ok: hasMeta },
+        { label: 'H1',                   value: hasH1 ? (L?'Found':'Gefunden') : (L?'Missing':'Fehlt'),    ok: hasH1 },
+        { label: L?'Status':'HTTP-Status', value: code, ok: code === '200' },
+        { label: L?'Load time':'Ladezeit', value: ms + ' ms', ok: parseInt(ms) < 3000 },
+      ];
+
       out.innerHTML = `
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-4">
-          <div class="rounded-xl border border-lime/20 bg-lime/5 p-3 text-center">
-            <p class="text-[10px] font-mono text-zinc-500 uppercase tracking-wider mb-1">${L?'Score':'Score'}</p>
-            <p class="text-sm font-semibold text-lime">85/100</p>
-          </div>
-          <div class="rounded-xl border border-lime/20 bg-lime/5 p-3 text-center">
-            <p class="text-[10px] font-mono text-zinc-500 uppercase tracking-wider mb-1">Security</p>
-            <p class="text-sm font-semibold text-lime">Sicher</p>
-          </div>
-          <div class="rounded-xl border border-lime/20 bg-lime/5 p-3 text-center">
-            <p class="text-[10px] font-mono text-zinc-500 uppercase tracking-wider mb-1">SEO</p>
-            <p class="text-sm font-semibold text-lime">Optimiert</p>
-          </div>
+          ${rows.map(r => `
+            <div class="rounded-xl border ${r.ok ? 'border-lime/20 bg-lime/5' : 'border-red-500/20 bg-red-500/5'} p-3 text-center">
+              <p class="text-[10px] font-mono text-zinc-500 uppercase tracking-wider mb-1">${esc(r.label)}</p>
+              <p class="text-sm font-semibold ${r.ok ? 'text-lime' : 'text-red-400'}">${esc(r.value)}</p>
+            </div>`).join('')}
         </div>
-        <p class="text-xs text-zinc-600">${L ? 'Full report available after login.' : 'Vollständiger Report nach Anmeldung verfügbar.'}</p>`;
+        <p class="text-xs text-zinc-600">${L ? 'Full report with login.' : 'VollstÃ¤ndiger Report nach Anmeldung verfÃ¼gbar.'}</p>`;
     } catch(e) {
-      if (errEl) { errEl.textContent = 'Fehler.'; errEl.classList.remove('hidden'); }
+      out.innerHTML = '';
+      if (errEl) {
+        errEl.textContent = LANG === 'en' ? 'Audit failed. Check URL.' : 'Audit fehlgeschlagen. URL prÃ¼fen.';
+        errEl.classList.remove('hidden');
+      }
     } finally {
       if (btn) { btn.textContent = LANG === 'en' ? 'Analyze' : 'Analysieren'; btn.disabled = false; }
     }
   }
 
-  // ── NAV & AUTH WIRING ────────────────────────────────
+  // â”€â”€ HERO ANIMATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  function initHeroAnim() {
+    const urlEl   = $('animUrl');
+    const statusEl = $('animStatus');
+    const gridEl   = $('animGrid');
+    if (!urlEl || !statusEl || !gridEl) return;
+
+    const fullUrl = LANG === 'en' ? 'https://client.com' : 'https://kunde.de';
+    const steps = [
+      { t: 0,    run: () => { urlEl.textContent = ''; statusEl.textContent = LANG==='en'?'Enter a URLâ€¦':'URL eingebenâ€¦'; gridEl.classList.add('opacity-0'); } },
+      { t: 400,  run: () => { let i=0; const tick=()=>{ if(i<=fullUrl.length){urlEl.textContent=fullUrl.slice(0,i++);setTimeout(tick,38);} }; tick(); } },
+      { t: 2200, run: () => { statusEl.textContent = LANG==='en'?'Auditingâ€¦':'Audit lÃ¤uftâ€¦'; } },
+      { t: 2800, run: () => { statusEl.textContent = LANG==='en'?'Done âœ“':'Fertig âœ“'; gridEl.classList.remove('opacity-0'); } },
+    ];
+
+    let timers = [];
+    function play() {
+      timers.forEach(clearTimeout); timers = [];
+      steps.forEach(s => timers.push(setTimeout(s.run, s.t)));
+    }
+    play();
+    setInterval(play, 5500);
+  }
+
+  // â”€â”€ FAQ ACCORDION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  function initFaq() {
+    document.querySelectorAll('[data-faq-toggle]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('aria-controls');
+        const panel = id && $(id);
+        const open = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+        panel?.classList.toggle('hidden', open);
+        // rotate arrow icon
+        const icon = btn.querySelector('[data-faq-icon]');
+        if (icon) icon.style.transform = open ? '' : 'rotate(180deg)';
+      });
+    });
+  }
+
+  // â”€â”€ HEADER SHRINK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  function initHeaderShrink() {
+    const header = $('siteHeader');
+    if (!header) return;
+    const onScroll = () => header.classList.toggle('is-compact', window.scrollY > 48);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  // â”€â”€ BACK TO TOP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  function initBackToTop() {
+    const btn = $('btnBackTop');
+    if (!btn) return;
+    window.addEventListener('scroll', () => {
+      btn.classList.toggle('opacity-0', window.scrollY < 400);
+      btn.classList.toggle('pointer-events-none', window.scrollY < 400);
+    }, { passive: true });
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  }
+
+  // â”€â”€ EMBED SNIPPET COPY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  function initEmbedCopy() {
+    $('btnEmbedCopy')?.addEventListener('click', async () => {
+      const ta = $('embedSnippet');
+      if (!ta) return;
+      try {
+        await navigator.clipboard.writeText(ta.value);
+        const btn = $('btnEmbedCopy');
+        if (btn) {
+          const orig = btn.textContent;
+          btn.textContent = LANG === 'en' ? 'âœ“ Copied!' : 'âœ“ Kopiert!';
+          setTimeout(() => { btn.textContent = orig; }, 2000);
+        }
+      } catch(_) {}
+    });
+  }
+
+  // â”€â”€ SMOOTH SCROLL NAV â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function initNav() {
+    // Anchor links
+    document.querySelectorAll('[data-scroll]').forEach(el => {
+      el.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(el.getAttribute('data-scroll'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    // Nav buttons (Produkt / Preise / FAQ)
     document.querySelectorAll('[data-nav]').forEach(btn => {
       btn.addEventListener('click', () => {
         const target = btn.getAttribute('data-nav');
-        const el = $(target);
+        const el = $(target) || document.getElementById(target);
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
 
+    // CTA Buttons â†’ Auth oder Dashboard
     $('btnNavCta')?.addEventListener('click', () => {
       if (STATE.user) window.location.href = DASH;
       else openAuthModal();
     });
 
+    // [data-open-auth] â†’ Ã¶ffnet Auth
+    document.querySelectorAll('[data-open-auth]').forEach(el => {
+      el.addEventListener('click', e => {
+        e.preventDefault();
+        if (STATE.user) window.location.href = DASH;
+        else openAuthModal();
+      });
+    });
+
+    // Auth Modal schlieÃŸen
     $('authModalClose')?.addEventListener('click', closeAuthModal);
     $('authModalBackdrop')?.addEventListener('click', closeAuthModal);
     $('btnNavAuth')?.addEventListener('click', openAuthModal);
-
     $('btnNavSignOut')?.addEventListener('click', async () => {
       await sb?.auth.signOut();
       STATE.user = null;
       syncUserUi();
     });
 
-    $('btnSelectMagic')?.addEventListener('click', () => showAuthView('magic'));
-    $('btnSelectPass')?.addEventListener('click', () => showAuthView('pass'));
+    // Auth-Auswahl Buttons (falls Landing-Page ein Auth-Modal hat)
+    $('btnSelectMagic')?.addEventListener('click', () => {
+      $('authViewMain')?.classList.add('hidden');
+      $('authViewMagic')?.classList.remove('hidden');
+    });
+    $('btnSelectPass')?.addEventListener('click', () => {
+      $('authViewMain')?.classList.add('hidden');
+      $('authViewPass')?.classList.remove('hidden');
+    });
     document.querySelectorAll('.btnAuthBackToSelection').forEach(btn => {
-      btn.addEventListener('click', () => showAuthView('main'));
+      btn.addEventListener('click', () => {
+        $('authViewMain')?.classList.remove('hidden');
+        $('authViewMagic')?.classList.add('hidden');
+        $('authViewPass')?.classList.add('hidden');
+        $('authViewConfirm')?.classList.add('hidden');
+      });
     });
+  }
 
-    $('tabSignIn')?.addEventListener('click', () => {
-      $('tabSignIn').classList.add('bg-zinc-800', 'text-white');
-      $('tabSignUp').classList.remove('bg-zinc-800', 'text-white');
-      $('formSignIn').classList.remove('hidden');
-      $('formSignUp').classList.add('hidden');
-    });
-    $('tabSignUp')?.addEventListener('click', () => {
-      $('tabSignUp').classList.add('bg-zinc-800', 'text-white');
-      $('tabSignIn').classList.remove('bg-zinc-800', 'text-white');
-      $('formSignUp').classList.remove('hidden');
-      $('formSignIn').classList.add('hidden');
-    });
-
-    $('formMagic')?.addEventListener('submit', async (e) => {
+  // â”€â”€ MAGIC LINK (Landing Auth Modal) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  function initMagicLink() {
+    $('formMagic')?.addEventListener('submit', async e => {
       e.preventDefault();
       const email = $('magicEmail')?.value.trim();
-      if (!email) return;
+      if (!sb || !email) return;
       const btn = $('btnMagicSubmit');
-      btn.disabled = true;
-      try {
-        const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href } });
-        if (error) throw error;
-        $('confirmEmail').textContent = email;
-        showAuthView('confirm');
-      } catch(err) { alert(err.message); } finally { btn.disabled = false; }
+      if (btn) { btn.disabled = true; btn.textContent = LANG==='en'?'Sendingâ€¦':'Wird gesendetâ€¦'; }
+      const redir = window.location.origin + '/' + DASH;
+      const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: redir } });
+      if (btn) { btn.disabled = false; btn.textContent = LANG==='en'?'Send Magic Link':'Magic Link senden'; }
+      if (error) {
+        const box = $('magicMsg');
+        if (box) { box.textContent = error.message; box.classList.remove('hidden'); }
+      } else {
+        const ce = $('confirmEmail');
+        if (ce) ce.textContent = email;
+        $('authViewMagic')?.classList.add('hidden');
+        $('authViewConfirm')?.classList.remove('hidden');
+      }
     });
 
-    $('formSignIn')?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = $('inEmail')?.value.trim();
-      const password = $('inPass')?.value;
-      if (!email || !password) return;
-      try {
-        const { error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      } catch(err) { alert(err.message); }
-    });
-
-    $('formSignUp')?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = $('upEmail')?.value.trim();
-      const password = $('upPass')?.value;
-      if (!email || !password) return;
-      try {
-        const { error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: window.location.href } });
-        if (error) throw error;
-        alert('Konto erstellt! Bitte prüfe deine E-Mails.');
-        closeAuthModal();
-      } catch(err) { alert(err.message); }
+    $('btnConfirmBack')?.addEventListener('click', () => {
+      $('authViewMagic')?.classList.remove('hidden');
+      $('authViewConfirm')?.classList.add('hidden');
     });
   }
 
-  // ── INIT ─────────────────────────────────────────────
+  // â”€â”€ PASSWORD AUTH (Landing) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  function initPasswordAuth() {
+    // Sign In
+    $('formSignIn')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!sb) return;
+      const { error } = await sb.auth.signInWithPassword({
+        email: $('inEmail')?.value.trim(),
+        password: $('inPass')?.value
+      });
+      if (error) {
+        const el = $('authError');
+        if (el) { el.textContent = error.message; el.classList.remove('hidden'); }
+      }
+    });
+
+    // Sign Up
+    $('formSignUp')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!sb) return;
+      const pw = $('upPass')?.value;
+      const el = $('authErrorUp');
+      if (!pw || pw.length < 8) {
+        if (el) { el.textContent = LANG==='en'?'Password min. 8 chars.':'Passwort min. 8 Zeichen.'; el.classList.remove('hidden'); }
+        return;
+      }
+      const { error } = await sb.auth.signUp({
+        email: $('upEmail')?.value.trim(),
+        password: pw,
+        options: { emailRedirectTo: window.location.origin + '/' + DASH }
+      });
+      if (error) {
+        if (el) { el.textContent = error.message; el.classList.remove('hidden'); }
+      } else {
+        if (el) { el.textContent = LANG==='en'?'Check your inbox!':'Postfach prÃ¼fen!'; el.classList.remove('hidden','text-red-400'); el.classList.add('text-lime'); }
+      }
+    });
+
+    // Tab switcher
+    $('tabSignIn')?.addEventListener('click', () => {
+      $('formSignIn')?.classList.remove('hidden');
+      $('formSignUp')?.classList.add('hidden');
+      $('tabSignIn')?.classList.add('bg-zinc-800','text-white');
+      $('tabSignUp')?.classList.remove('bg-zinc-800','text-white');
+    });
+    $('tabSignUp')?.addEventListener('click', () => {
+      $('formSignUp')?.classList.remove('hidden');
+      $('formSignIn')?.classList.add('hidden');
+      $('tabSignUp')?.classList.add('bg-zinc-800','text-white');
+      $('tabSignIn')?.classList.remove('bg-zinc-800','text-white');
+    });
+  }
+
+  // â”€â”€ DEMO BUTTON â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  function initDemoButton() {
+    $('btnDemoStart')?.addEventListener('click', runLandingDemo);
+    $('demoUrl')?.addEventListener('keydown', e => { if (e.key === 'Enter') runLandingDemo(); });
+  }
+
+  // â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function init() {
-    // Erst initialisieren, dann Loader weg
+    icons();
     initSupabase();
+    initPageLoader();
     initNav();
-    $('btnDemoStart')?.addEventListener('click', runDemoAudit);
-    
-    // Loader nach Initialisierung ausblenden
-    if (document.readyState === 'complete') {
-      setTimeout(hideLoader, 100);
-    } else {
-      window.addEventListener('load', hideLoader);
-    }
-    // Sicherheits-Fallback
-    setTimeout(hideLoader, 1500);
+    initMagicLink();
+    initPasswordAuth();
+    initDemoButton();
+    initHeroAnim();
+    initFaq();
+    initHeaderShrink();
+    initBackToTop();
+    initEmbedCopy();
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
+  document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', init)
+    : init();
 
 })();

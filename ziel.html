@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>AuditFlow — 30-Tage Tagesplan</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#c8c8c0;padding:1.2rem 1rem;min-height:100vh;}
+h1{font-size:18px;font-weight:600;color:#fff;margin-bottom:2px;letter-spacing:-0.3px;}
+.sub{font-size:11px;color:#444;margin-bottom:1.25rem;line-height:1.5;}
+
+/* Nav */
+.nav{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:1rem;}
+.nb{padding:5px 10px;font-size:10px;border:1px solid #1a1a18;border-radius:5px;cursor:pointer;background:#0d0d0d;color:#555;white-space:nowrap;}
+.nb:hover{border-color:#333;}
+.nb.active{background:#1a2a0a;color:#c8f135;border-color:#3a5a10;font-weight:600;}
+
+/* Sections */
+.sec{display:none;}
+.sec.active{display:block;}
+
+/* Day card */
+.day{background:#111;border:1px solid #1a1a18;border-radius:9px;padding:0.85rem 1rem;margin-bottom:8px;}
+.day-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.day-title{font-size:13px;font-weight:600;color:#fff;}
+.day-date{font-size:10px;color:#444;}
+.day-free{font-size:10px;color:#7aaa3a;background:#0f1a0a;border:1px solid #1a3010;padding:2px 7px;border-radius:4px;}
+.day-busy{font-size:10px;color:#666;background:#0d0d0d;border:1px solid #1a1a18;padding:2px 7px;border-radius:4px;}
+.time-block{display:flex;gap:10px;margin-bottom:6px;align-items:flex-start;}
+.time{font-size:10px;color:#444;min-width:70px;padding-top:2px;white-space:nowrap;}
+.task-pill{flex:1;border-radius:6px;padding:6px 10px;}
+.tp-school{background:#1a0a2a;border:1px solid #2a1040;color:#9a6abf;}
+.tp-tennis{background:#0a1a2a;border:1px solid #102a40;color:#4a8abf;}
+.tp-hw{background:#1a1008;border:1px solid #2a2010;color:#c8821a;}
+.tp-af{background:#0f1a0a;border:1px solid #1a3010;color:#7aaa3a;}
+.tp-rest{background:#0d0d0d;border:1px solid #1a1a18;color:#444;}
+.tp-title{font-size:11px;font-weight:600;margin-bottom:2px;}
+.tp-desc{font-size:10px;opacity:0.8;line-height:1.4;}
+.day-note{font-size:11px;color:#555;background:#0d0d0d;border:1px solid #1a1a18;border-radius:6px;padding:6px 9px;margin-top:4px;line-height:1.5;}
+
+/* Text templates */
+.tpl{background:#111;border:1px solid #1a1a18;border-radius:9px;padding:0.85rem 1rem;margin-bottom:10px;}
+.tpl-label{font-size:10px;font-weight:600;color:#7aaa3a;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;}
+.tpl-text{font-size:12px;color:#888;line-height:1.7;white-space:pre-wrap;background:#0d0d0d;border:1px solid #1a1a18;border-radius:6px;padding:10px 12px;}
+.copy-btn{font-size:10px;padding:3px 9px;background:#1a2a0a;border:1px solid #2a4010;border-radius:4px;color:#7aaa3a;cursor:pointer;}
+.copy-btn:hover{background:#2a3a1a;}
+.copied{color:#c8f135!important;border-color:#c8f135!important;}
+
+/* Status badge */
+.badge{display:inline-block;font-size:9px;padding:2px 7px;border-radius:3px;margin-left:6px;vertical-align:middle;}
+.b-done{background:#0f1a0a;color:#7aaa3a;border:1px solid #1a3010;}
+.b-todo{background:#1a1008;color:#c8821a;border:1px solid #2a2010;}
+.b-you{background:#1a0808;color:#E24B4A;border:1px solid #2a1010;}
+
+.week-title{font-size:14px;font-weight:600;color:#c8f135;margin-bottom:0.75rem;padding:8px 12px;background:#0d150a;border:1px solid #1a3010;border-radius:7px;}
+</style>
+
+</head>
+<body>
+
+<h1>AuditFlow — 30-Tage Tagesplan</h1>
+<p class="sub">Angepasst an deinen Kalender · Schule Mo–Fr · Tennis Mo+Fr · Hausaufgaben immer zuerst · AuditFlow in Freizeit</p>
+
+<div class="nav">
+  <button class="nb active" onclick="show('plan')">📅 Tagesplan</button>
+  <button class="nb" onclick="show('texts')">✍️ Fertige Texte</button>
+  <button class="nb" onclick="show('eltern')">👨‍👩‍👦 Eltern-Brief</button>
+  <button class="nb" onclick="show('testimonial')">💬 Testimonial-Anfragen</button>
+  <button class="nb" onclick="show('ph')">🚀 Product Hunt</button>
+</div>
+
+<!-- ═══════════════ TAGESPLAN ═══════════════ -->
+
+<div class="sec active" id="plan">
+
+<div class="week-title">Woche 1 (Mo 20. – So 26. April) — Fundament legen</div>
+
+<!-- SONNTAG HEUTE -->
+
+<div class="day" style="border-color:#c8f135;">
+  <div class="day-head">
+    <div><span class="day-title">⭐ Heute — Sonntag, 19. April</span><span class="badge b-todo">JETZT STARTEN</span></div>
+    <span class="day-free">~3h frei</span>
+  </div>
+  <div class="time-block"><span class="time">17:00–17:30</span><div class="task-pill tp-af"><div class="tp-title">Formspree einrichten (5 Min) + Domain kaufen</div><div class="tp-desc">formspree.io → Account → Code kopieren → in index.html eintragen. Dann namecheap.com → auditflow.io kaufen (~€10). Cursor: Formspree-Code + Domain-Meta-Tag eintragen.</div></div></div>
+  <div class="time-block"><span class="time">17:30–18:15</span><div class="task-pill tp-af"><div class="tp-title">OG-Bild erstellen</div><div class="tp-desc">canva.com → 1200×630px → dunkler Hintergrund → "AuditFlow" groß → "Audit any website in 30s." darunter → als og-image.png exportieren → ins GitHub Repo hochladen</div></div></div>
+  <div class="time-block"><span class="time">18:15–18:45</span><div class="task-pill tp-af"><div class="tp-title">LinkedIn Profil fertig machen</div><div class="tp-desc">Profilbild hochladen → Headline eintragen (Text im "Fertige Texte" Tab) → About-Section einfügen → fertig</div></div></div>
+  <div class="time-block"><span class="time">18:45–19:00</span><div class="task-pill tp-rest"><div class="tp-title">Pause / Abend</div><div class="tp-desc">Morgen früh Schule. Nicht überarbeiten.</div></div></div>
+  <div class="day-note">💡 Heute erledigst du 3 Aufgaben auf einmal. Formspree + OG-Bild + LinkedIn sind alle unter 30 Min. Das bringt dich von 8.3 auf ~8.9/10.</div>
+</div>
+
+<div class="day">
+  <div class="day-head">
+    <div><span class="day-title">Montag, 20. April</span></div>
+    <span class="day-busy">Schule 07:55–13:45 · Tennis 16–19h</span>
+  </div>
+  <div class="time-block"><span class="time">13:45–15:00</span><div class="task-pill tp-hw"><div class="tp-title">Hausaufgaben + Mittagessen</div><div class="tp-desc">Erst Hausaufgaben — immer. AuditFlow kommt danach.</div></div></div>
+  <div class="time-block"><span class="time">15:00–15:45</span><div class="task-pill tp-af"><div class="tp-title">Eltern-Gespräch über Stripe vorbereiten</div><div class="tp-desc">Den Eltern-Brief (Tab "Eltern-Brief") durchlesen. Überlege wann ein guter Moment ist das Gespräch zu führen — Abends nach Tennis wenn alle entspannt sind.</div></div></div>
+  <div class="time-block"><span class="time">15:45–16:00</span><div class="task-pill tp-tennis"><div class="tp-title">Tennis vorbereiten</div><div class="tp-desc"></div></div></div>
+  <div class="time-block"><span class="time">16:00–19:00</span><div class="task-pill tp-tennis"><div class="tp-title">Tennis</div><div class="tp-desc"></div></div></div>
+  <div class="time-block"><span class="time">19:30–20:00</span><div class="task-pill tp-af"><div class="tp-title">Eltern-Gespräch führen</div><div class="tp-desc">Brief zeigen oder vorlesen. Ruhig bleiben. Nur um Erlaubnis für Stripe bitten — nicht mehr. Text im "Eltern-Brief" Tab.</div></div></div>
+  <div class="day-note">🎾 Tennis-Tag → nur 45 Min für AuditFlow. Das reicht für das Wichtigste.</div>
+</div>
+
+<div class="day">
+  <div class="day-head">
+    <div><span class="day-title">Dienstag, 21. April</span></div>
+    <span class="day-busy">Schule 07:55–16:00</span>
+  </div>
+  <div class="time-block"><span class="time">16:00–17:00</span><div class="task-pill tp-hw"><div class="tp-title">Hausaufgaben</div><div class="tp-desc">Erst fertig machen.</div></div></div>
+  <div class="time-block"><span class="time">17:00–17:30</span><div class="task-pill tp-af"><div class="tp-title">Testimonial-Anfragen senden</div><div class="tp-desc">3 Personen per WhatsApp anschreiben (Texte im "Testimonial" Tab — einfach kopieren). Heute nur senden, nicht warten.</div></div></div>
+  <div class="time-block"><span class="time">17:30–18:00</span><div class="task-pill tp-af"><div class="tp-title">Embed-Widget URL korrigieren</div><div class="tp-desc">In index.html: src="https://auditflow.io/embed.html" → src="https://theodorluke1-debug.github.io/AuditFlow/embed.html" ändern. Cursor-Prompt: "Fix the embed snippet URL in index.html"</div></div></div>
+  <div class="time-block"><span class="time">18:00–19:00</span><div class="task-pill tp-rest"><div class="tp-title">Freizeit / Abend</div><div class="tp-desc"></div></div></div>
+  <div class="day-note">📨 Langer Schultag bis 16h. Heute nur leichte Aufgaben — Texte schicken und eine kleine Code-Änderung.</div>
+</div>
+
+<div class="day">
+  <div class="day-head">
+    <div><span class="day-title">Mittwoch, 22. April</span></div>
+    <span class="day-busy">Schule 07:55–13:45</span>
+  </div>
+  <div class="time-block"><span class="time">13:45–14:30</span><div class="task-pill tp-hw"><div class="tp-title">Hausaufgaben + Mittagessen</div><div class="tp-desc"></div></div></div>
+  <div class="time-block"><span class="time">14:30–15:15</span><div class="task-pill tp-af"><div class="tp-title">Stripe einrichten (wenn Eltern zugestimmt haben)</div><div class="tp-desc">stripe.com → Account → 2 Payment Links → URLs in index.html ersetzen. Schritt-für-Schritt: Account → Products → Payment Link → Pro (€49) → Link kopieren → in index.html "placeholder-pro" ersetzen. Gleiches für LTD (€99).</div></div></div>
+  <div class="time-block"><span class="time">15:15–15:45</span><div class="task-pill tp-af"><div class="tp-title">Testimonials einsammeln + einbauen</div><div class="tp-desc">Antworten auf WhatsApp-Anfragen lesen → in index.html Platzhalter ersetzen → commit + push</div></div></div>
+  <div class="time-block"><span class="time">15:45–17:00</span><div class="task-pill tp-rest"><div class="tp-title">Freizeit</div><div class="tp-desc"></div></div></div>
+  <div class="day-note">⭐ Wenn heute Stripe live geht — ist AuditFlow zum ersten Mal kaufbar. Das ist der wichtigste Tag des Plans.</div>
+</div>
+
+<div class="day">
+  <div class="day-head">
+    <div><span class="day-title">Donnerstag, 23. April</span></div>
+    <span class="day-busy">Schule 07:55–13:45</span>
+  </div>
+  <div class="time-block"><span class="time">13:45–14:30</span><div class="task-pill tp-hw"><div class="tp-title">Hausaufgaben</div><div class="tp-desc"></div></div></div>
+  <div class="time-block"><span class="time">14:30–15:30</span><div class="task-pill tp-af"><div class="tp-title">X/Twitter Account @auditflow_io erstellen</div><div class="tp-desc">x.com → Account → @auditflow_io → Profilbild (AuditFlow Logo) → Bio (Text im "Fertige Texte" Tab) → 3 erste Posts schreiben und planen</div></div></div>
+  <div class="time-block"><span class="time">15:30–16:00</span><div class="task-pill tp-af"><div class="tp-title">Analytics einbinden</div><div class="tp-desc">umami.is → kostenlosen Account → Script-Tag in index.html einfügen → ab jetzt siehst du Besucher</div></div></div>
+  <div class="time-block"><span class="time">16:00–17:30</span><div class="task-pill tp-rest"><div class="tp-title">Freizeit / Hausaufgaben Rest</div><div class="tp-desc"></div></div></div>
+</div>
+
+<div class="day">
+  <div class="day-head">
+    <div><span class="day-title">Freitag, 24. April</span></div>
+    <span class="day-busy">Schule 08:00–16:05 · Tennis Eschborn 19:00–20:30</span>
+  </div>
+  <div class="time-block"><span class="time">16:05–17:00</span><div class="task-pill tp-hw"><div class="tp-title">Hausaufgaben + Erholung</div><div class="tp-desc">Langer Tag + Tennis heute. Nur Hausaufgaben, kein AuditFlow.</div></div></div>
+  <div class="time-block"><span class="time">17:00–18:30</span><div class="task-pill tp-rest"><div class="tp-title">Freizeit / Tennis vorbereiten</div><div class="tp-desc"></div></div></div>
+  <div class="time-block"><span class="time">19:00–20:30</span><div class="task-pill tp-tennis"><div class="tp-title">Tennis Eschborn</div><div class="tp-desc"></div></div></div>
+  <div class="day-note">😴 Heute AuditFlow-freier Tag. Langer Schultag + Tennis abends. Erholen ist auch produktiv.</div>
+</div>
+
+<div class="day">
+  <div class="day-head">
+    <div><span class="day-title">Samstag, 25. April</span></div>
+    <span class="day-free">~4–5h verfügbar</span>
+  </div>
+  <div class="time-block"><span class="time">10:00–11:30</span><div class="task-pill tp-af"><div class="tp-title">Product Hunt Eintrag ausfüllen</div><div class="tp-desc">producthunt.com → Submit → alle Texte aus "Product Hunt" Tab einfügen → Screenshots vom Dashboard hochladen → Demo-Video Link einfügen → noch NICHT submitten</div></div></div>
+  <div class="time-block"><span class="time">11:30–12:00</span><div class="task-pill tp-af"><div class="tp-title">Demo-Video aufnehmen</div><div class="tp-desc">QuickTime (Mac) → Bildschirmaufnahme → URL eingeben → Audit starten → Ergebnisse zeigen → 60 Sekunden → als MP4 speichern → auf YouTube "unlisted" hochladen</div></div></div>
+  <div class="time-block"><span class="time">12:00–14:00</span><div class="task-pill tp-rest"><div class="tp-title">Mittagessen + Freizeit</div><div class="tp-desc"></div></div></div>
+  <div class="time-block"><span class="time">14:00–14:30</span><div class="task-pill tp-af"><div class="tp-title">LinkedIn 5 Kommentare schreiben</div><div class="tp-desc">Suche: "SEO agency" → 5 echte Kommentare bei Posts von SEO-Agenturen. Texte im "Fertige Texte" Tab als Inspiration.</div></div></div>
+</div>
+
+<div class="day">
+  <div class="day-head">
+    <div><span class="day-title">Sonntag, 26. April</span></div>
+    <span class="day-free">~4h verfügbar</span>
+  </div>
+  <div class="time-block"><span class="time">10:00–11:00</span><div class="task-pill tp-af"><div class="tp-title">Woche 1 Review + Alles prüfen</div><div class="tp-desc">Checkliste: Stripe live? ✓ Testimonials eingebaut? ✓ Formspree? ✓ OG-Bild? ✓ X-Account? ✓ PH-Eintrag fertig? ✓</div></div></div>
+  <div class="time-block"><span class="time">11:00–12:00</span><div class="task-pill tp-af"><div class="tp-title">50-Personen-Liste für PH-Launch erstellen</div><div class="tp-desc">Kontakte sammeln: Freunde, Familie, Klassenkameraden, Online-Bekannte → WhatsApp-Nachricht vorbereiten (Text im "Fertige Texte" Tab) → noch nicht senden</div></div></div>
+  <div class="time-block"><span class="time">12:00–13:00</span><div class="task-pill tp-rest"><div class="tp-title">Freizeit</div><div class="tp-desc"></div></div></div>
+</div>
+
+<div class="week-title" style="margin-top:1rem;">Woche 2 (Mo 27. Apr – So 3. Mai) — Launch-Vorbereitung</div>
+
+<div class="day">
+  <div class="day-head"><div><span class="day-title">Mo 27. + Di 28. April</span></div><span class="day-busy">Schule · Tennis Mo</span></div>
+  <div class="time-block"><span class="time">Nach Schule+HW</span><div class="task-pill tp-af"><div class="tp-title">Täglich: 5 LinkedIn-Kommentare (15 Min)</div><div class="tp-desc">Jeden Tag bei SEO/Web-Posts kommentieren. Profil aufwärmen vor dem großen Post. Texte im "Fertige Texte" Tab.</div></div></div>
+</div>
+
+<div class="day">
+  <div class="day-head"><div><span class="day-title">Mi 29. April — LinkedIn POST TAG</span><span class="badge b-todo">WICHTIG</span></div><span class="day-busy">Schule 07:55–13:45</span></div>
+  <div class="time-block"><span class="time">08:00</span><div class="task-pill tp-af"><div class="tp-title">⭐ LinkedIn Launch-Post veröffentlichen</div><div class="tp-desc">Morgens VOR der Schule posten (8–9 Uhr optimal). Text im "Fertige Texte" Tab kopieren → posten → sofort 10 Kontakte per WhatsApp benachrichtigen.</div></div></div>
+  <div class="time-block"><span class="time">13:45–15:00</span><div class="task-pill tp-hw"><div class="tp-title">Hausaufgaben</div><div class="tp-desc"></div></div></div>
+  <div class="time-block"><span class="time">15:00–17:00</span><div class="task-pill tp-af"><div class="tp-title">Jeden Kommentar beantworten</div><div class="tp-desc">Alle Kommentare auf den LinkedIn-Post mit echten Antworten beantworten. Das pusht den Algorithmus.</div></div></div>
+  <div class="day-note">📢 Das ist der erste öffentliche Launch. Deine Schüler-Story wird hier zum ersten Mal sichtbar.</div>
+</div>
+
+<div class="day">
+  <div class="day-head"><div><span class="day-title">Do 30. April — Product Hunt LAUNCH</span><span class="badge b-todo">WICHTIG</span></div><span class="day-busy">Schule 07:55–13:45</span></div>
+  <div class="time-block"><span class="time">07:00</span><div class="task-pill tp-af"><div class="tp-title">⭐ Product Hunt submitten (vor Schule)</div><div class="tp-desc">PH geht um 9:00 Uhr DE-Zeit live. Vorher submitten → alle 50 Personen per WhatsApp → "Bitte heute voten: [link]"</div></div></div>
+  <div class="time-block"><span class="time">13:45–16:00</span><div class="task-pill tp-af"><div class="tp-title">PH Kommentare beantworten</div><div class="tp-desc">Nach Schule sofort alle PH-Kommentare beantworten. Jeden der das Produkt testet persönlich ansprechen.</div></div></div>
+  <div class="day-note">🚀 Das ist der wichtigste Tag. Auch wenn Schule ist — morgens 7 Uhr submitten und abends aktiv bleiben.</div>
+</div>
+
+<div class="week-title" style="margin-top:1rem;">Woche 3–4 (Mai) — Wachstum & AppSumo</div>
+
+<div class="day">
+  <div class="day-head"><div><span class="day-title">1.–7. Mai — Nach dem Launch</span></div><span class="day-free">Täglich 30–45 Min</span></div>
+  <div class="time-block"><span class="time">Täglich nach HW</span><div class="task-pill tp-af"><div class="tp-title">Feedback einsammeln + Top-Bugs fixen</div><div class="tp-desc">Supabase → Users → erste Registrierte per E-Mail anschreiben (Text im "Fertige Texte" Tab) → Feedback in Cursor umsetzen</div></div></div>
+  <div class="time-block"><span class="time">Mi 6. Mai</span><div class="task-pill tp-af"><div class="tp-title">Wöchentlicher Build-in-Public Post auf LinkedIn</div><div class="tp-desc">"Woche 1 nach Launch: X Nutzer, das habe ich gelernt..." → ehrlich, kurz, 5 Min</div></div></div>
+</div>
+
+<div class="day">
+  <div class="day-head"><div><span class="day-title">8.–15. Mai — AppSumo einreichen</span></div><span class="day-free">1x 1 Stunde</span></div>
+  <div class="time-block"><span class="time">Sa 9. Mai</span><div class="task-pill tp-af"><div class="tp-title">AppSumo Deal einreichen</div><div class="tp-desc">appsumo.com/partners → Submit → Produktbeschreibung, Screenshots, Video → €99 LTD → einreichen → 4 Wochen warten</div></div></div>
+  <div class="time-block"><span class="time">Sa 16. Mai</span><div class="task-pill tp-af"><div class="tp-title">Loops.so Feedback-E-Mail einrichten</div><div class="tp-desc">loops.so → Supabase-Integration → Feedback-E-Mail-Template einfügen → Day 3 Trigger → fertig</div></div></div>
+</div>
+
+</div><!-- end plan -->
+
+<!-- ═══════════════ FERTIGE TEXTE ═══════════════ -->
+
+<div class="sec" id="texts">
+
+<div class="tpl">
+  <div class="tpl-label">LinkedIn Headline <button class="copy-btn" onclick="copyText(this, 'lh')">Kopieren</button></div>
+  <div class="tpl-text" id="lh">Building AuditFlow — Web Intelligence for Agencies | 15 y/o Developer from Frankfurt 🇩🇪</div>
+</div>
+
+<div class="tpl">
+  <div class="tpl-label">LinkedIn About-Section <button class="copy-btn" onclick="copyText(this, 'la')">Kopieren</button></div>
+  <div class="tpl-text" id="la">Ich bin 15 Jahre alt und baue AuditFlow neben der Schule in Frankfurt.
+
+AuditFlow ist ein B2B SaaS-Tool das Websites in Sekunden analysiert — SEO, Performance, Security, Core Web Vitals und Barrierefreiheit. Gebaut für Agenturen die professionelle White-Label Reports für ihre Kunden brauchen.
+
+Aktuell: Product Hunt Launch in Vorbereitung.
+
+Tech-Stack: HTML, CSS, JavaScript, Supabase
+Kontakt: support@auditflow.io</div>
+
+</div>
+
+<div class="tpl">
+  <div class="tpl-label">X/Twitter Bio <button class="copy-btn" onclick="copyText(this, 'xb')">Kopieren</button></div>
+  <div class="tpl-text" id="xb">Web Intelligence for Agencies 🔍 | Audit any website in 30s | Built by a 15y/o 🇩🇪 | #BuildInPublic | auditflow.io</div>
+</div>
+
+<div class="tpl">
+  <div class="tpl-label">LinkedIn Post — Deutsch (Launch) <button class="copy-btn" onclick="copyText(this, 'lpd')">Kopieren</button></div>
+  <div class="tpl-text" id="lpd">Ich bin 15 Jahre alt, gehe zur Schule in Frankfurt — und habe nebenbei ein B2B SaaS-Tool gebaut.
+
+Nicht als Schulprojekt. Nicht als Hobby.
+Sondern weil ich ein echtes Problem gesehen habe:
+
+SEO-Agenturen verbringen Stunden damit, Website-Audits für Kunden manuell zu erstellen — Lighthouse-Screenshots in Word-Docs kopieren, Seite für Seite.
+
+Ich habe AuditFlow gebaut um das zu lösen.
+
+→ URL eingeben
+→ Professioneller Report in Sekunden
+→ White-Label PDF direkt an den Kunden
+
+Was AuditFlow analysiert:
+✓ SEO-Tiefe (Meta, Canonical, robots.txt, Sitemap)
+✓ Performance (Render-blocking, Bildformate, HTML-Gewicht)
+✓ Security-Layer (HTTPS, HSTS, CSP-Hinweise)
+✓ Core Web Vitals (LCP, CLS, FID, TTFB)
+✓ Barrierefreiheit WCAG 2.1
+✓ Competitive Benchmarking (zwei Sites direkt vergleichen)
+
+Kostenlos testen:
+👉 https://theodorluke1-debug.github.io/AuditFlow/
+
+Ich lese jeden Kommentar persönlich — was würdet ihr als SEO-Agentur in einem Audit-Tool brauchen?
+
+#SEO #WebDevelopment #SaaS #IndieHacker #BuildInPublic</div>
+
+</div>
+
+<div class="tpl">
+  <div class="tpl-label">LinkedIn Post — Englisch (für internationale Reichweite) <button class="copy-btn" onclick="copyText(this, 'lpe')">Kopieren</button></div>
+  <div class="tpl-text" id="lpe">I'm 15 years old, still in school in Frankfurt, Germany — and I built a B2B SaaS tool on the side.
+
+Not as a school project. Not as a hobby.
+Because I saw a real problem:
+
+SEO agencies spend hours manually creating website audit reports for clients — copy-pasting Lighthouse screenshots into Word docs, page by page.
+
+So I built AuditFlow to fix that.
+
+→ Enter a URL
+→ Get a professional report in seconds
+→ White-label PDF straight to the client
+
+What AuditFlow checks:
+✓ SEO depth (Meta, Canonical, robots.txt, Sitemap)
+✓ Performance (render-blocking, image formats, HTML weight)
+✓ Security headers (HTTPS, HSTS, CSP)
+✓ Core Web Vitals (LCP, CLS, FID, TTFB)
+✓ Accessibility WCAG 2.1
+✓ Competitive benchmarking (compare two sites side by side)
+
+Free to try:
+👉 https://theodorluke1-debug.github.io/AuditFlow/
+
+I read every comment personally — what would you need in a website audit tool as an agency?
+
+#SEO #WebDevelopment #SaaS #IndieHacker #BuildInPublic</div>
+
+</div>
+
+<div class="tpl">
+  <div class="tpl-label">WhatsApp — Launch-Tag Vote-Anfrage <button class="copy-btn" onclick="copyText(this, 'wa')">Kopieren</button></div>
+  <div class="tpl-text" id="wa">Hey! Ich launche heute mein Projekt AuditFlow auf Product Hunt 🚀 Würde mich sehr freuen wenn du kurz voten könntest — dauert 30 Sekunden:
+
+👉 [PRODUCT HUNT LINK HIER EINFÜGEN]
+
+Danke! 🙏</div>
+
+</div>
+
+<div class="tpl">
+  <div class="tpl-label">LinkedIn Kommentar-Vorlage (täglich 5x nutzen) <button class="copy-btn" onclick="copyText(this, 'lk')">Kopieren</button></div>
+  <div class="tpl-text" id="lk">Interessanter Punkt — das deckt sich genau mit dem Problem das ich beim Bauen von AuditFlow gesehen habe. Wie löst ihr das bei eurer Agentur aktuell?</div>
+</div>
+
+<div class="tpl">
+  <div class="tpl-label">E-Mail an erste Nutzer (nach Launch) <button class="copy-btn" onclick="copyText(this, 'en')">Kopieren</button></div>
+  <div class="tpl-text" id="en">Betreff: Kurze Frage zu AuditFlow
+
+Hey,
+
+ich bin Theodor — ich habe AuditFlow gebaut. Ich bin 15 Jahre alt und mache das neben der Schule.
+
+Du hast dich vor kurzem registriert — vielen Dank! Ich wollte mich kurz melden und fragen:
+
+Hat AuditFlow das gezeigt was du erwartet hast? Was würdest du dir anders wünschen?
+
+Ich lese jede Antwort selbst und antworte auch persönlich.
+
+Viele Grüße,
+Theodor
+support@auditflow.io</div>
+
+</div>
+
+<div class="tpl">
+  <div class="tpl-label">Build-in-Public Wochenupdate (Vorlage) <button class="copy-btn" onclick="copyText(this, 'bip')">Kopieren</button></div>
+  <div class="tpl-text" id="bip">Woche [X] von AuditFlow — hier ist was passiert ist:
+
+📊 Zahlen:
+→ [X] neue Registrierungen
+→ [X] Audits durchgeführt
+→ [X] zahlende Kunden
+
+💡 Wichtigste Lektion:
+[Was hast du diese Woche gelernt?]
+
+🔧 Was ich gebaut habe:
+[Welches Feature oder welchen Fix?]
+
+❓ Frage an euch:
+[Eine konkrete Frage an die Community]
+
+#BuildInPublic #SaaS #IndieHacker #AuditFlow</div>
+
+</div>
+
+</div><!-- end texts -->
+
+<!-- ═══════════════ ELTERN-BRIEF ═══════════════ -->
+
+<div class="sec" id="eltern">
+
+<div class="tpl">
+  <div class="tpl-label">Brief / Gespräch für Eltern — zum Vorlesen oder Zeigen <button class="copy-btn" onclick="copyText(this, 'eb')">Kopieren</button></div>
+  <div class="tpl-text" id="eb">Liebe Mama, lieber Papa,
+
+ich möchte euch erklären was ich in den letzten Monaten gebaut habe und warum ich eure Unterstützung brauche.
+
+Was ist AuditFlow?
+Ich habe ein professionelles Web-Tool gebaut das Websites automatisch analysiert — für SEO-Agenturen die das bisher manuell und zeitaufwendig machen mussten. Das Tool läuft bereits, hat ein vollständiges Login-System, eine deutsche und englische Version, und ist rechtlich korrekt aufgestellt (Impressum, Datenschutz, AGB).
+
+Die Website: https://theodorluke1-debug.github.io/AuditFlow/
+
+Was ich von euch brauche:
+Nur eine Sache: die Erlaubnis einen Stripe-Account einzurichten um Zahlungen entgegennehmen zu können. Als Minderjähriger brauche ich dazu eure Zustimmung.
+
+Stripe ist der weltweit größte und sicherste Zahlungsanbieter — verwendet von Amazon, Google und Millionen anderer Unternehmen. Ich würde Zahlungen über mein eigenes Konto empfangen.
+
+Was das bedeutet:
+→ Ich müsste ein Gewerbe anmelden (mit eurer Zustimmung, ~€20)
+→ Ich würde Steuern korrekt abführen (25–30% zurücklegen)
+→ Schule bleibt meine erste Priorität — AuditFlow mache ich nur in meiner Freizeit
+→ Ich könnte mein eigenes Taschengeld und Kanada-Reise mitfinanzieren
+
+Was ich nicht brauche:
+→ Kein Geld von euch
+→ Keinen Aufwand für euch
+→ Keine Haftung für euch (das Produkt ist korrekt abgesichert)
+
+Ich bin 15 Jahre alt und habe in meiner Freizeit etwas aufgebaut das die meisten Erwachsenen nicht schaffen. Ich bitte euch nicht reich zu werden — ich bitte euch um die Chance zu lernen wie man ein Produkt vermarktet.
+
+Wenn ihr Fragen habt beantworte ich sie gerne.
+
+Euer Theodor</div>
+
+</div>
+
+</div><!-- end eltern -->
+
+<!-- ═══════════════ TESTIMONIALS ═══════════════ -->
+
+<div class="sec" id="testimonial">
+
+<div class="tpl">
+  <div class="tpl-label">WhatsApp Anfrage — Version 1 (kurz) <button class="copy-btn" onclick="copyText(this, 't1')">Kopieren</button></div>
+  <div class="tpl-text" id="t1">Hey [Name]! Ich habe ein Tool gebaut das Websites analysiert — kannst du kurz meine Website testen? https://theodorluke1-debug.github.io/AuditFlow/ — gib einfach deine Website-URL ein und sag mir was du siehst 😊</div>
+</div>
+
+<div class="tpl">
+  <div class="tpl-label">WhatsApp Anfrage — Version 2 (mit Zitat-Bitte) <button class="copy-btn" onclick="copyText(this, 't2')">Kopieren</button></div>
+  <div class="tpl-text" id="t2">Hey [Name]! Ich baue gerade AuditFlow — ein Tool das Websites technisch analysiert. Kannst du es kurz ausprobieren und mir einen kurzen Satz sagen was du denkst? Ich würde das Zitat gerne auf meiner Website verwenden 🙏 Link: https://theodorluke1-debug.github.io/AuditFlow/</div>
+</div>
+
+<div class="tpl">
+  <div class="tpl-label">Beispiel-Testimonial (Platzhalter-Format zum Ausfüllen) <button class="copy-btn" onclick="copyText(this, 'tp')">Kopieren</button></div>
+  <div class="tpl-text" id="tp">"[ZITAT DES NUTZERS — was sie gesagt haben, authentisch lassen]"
+
+[Vorname Nachname]
+[Rolle] · [Firma oder “Freelancer”]</div>
+
+</div>
+
+<div class="tpl">
+  <div class="tpl-label">Cursor-Prompt zum Einbauen der Testimonials <button class="copy-btn" onclick="copyText(this, 'tc')">Kopieren</button></div>
+  <div class="tpl-text" id="tc">Replace the three placeholder testimonial cards in index.html with these real testimonials:
+
+Testimonial 1:
+Quote: “[ZITAT 1]”
+Name: [Name 1]
+Role: [Rolle 1]
+Company: [Firma 1]
+
+Testimonial 2:
+Quote: “[ZITAT 2]”
+Name: [Name 2]
+Role: [Rolle 2]
+Company: [Firma 2]
+
+Testimonial 3:
+Quote: “[ZITAT 3]”
+Name: [Name 3]
+Role: [Rolle 3]
+Company: [Firma 3]
+
+Keep the existing card design and styling.</div>
+
+</div>
+
+</div><!-- end testimonial -->
+
+<!-- ═══════════════ PRODUCT HUNT ═══════════════ -->
+
+<div class="sec" id="ph">
+
+<div class="tpl">
+  <div class="tpl-label">PH Name (max 40 Zeichen) <button class="copy-btn" onclick="copyText(this, 'phn')">Kopieren</button></div>
+  <div class="tpl-text" id="phn">AuditFlow — Web Intelligence for Agencies</div>
+</div>
+
+<div class="tpl">
+  <div class="tpl-label">PH Tagline (max 60 Zeichen) <button class="copy-btn" onclick="copyText(this, 'pht')">Kopieren</button></div>
+  <div class="tpl-text" id="pht">Audit any website in 30s. White-label reports for agencies.</div>
+</div>
+
+<div class="tpl">
+  <div class="tpl-label">PH Description (max 500 Zeichen) <button class="copy-btn" onclick="copyText(this, 'phd')">Kopieren</button></div>
+  <div class="tpl-text" id="phd">AuditFlow audits any website in seconds — SEO depth, performance forensics, security headers, Core Web Vitals, and WCAG accessibility. Built for agencies that deliver results to clients.
+
+White-label PDF reports, competitive benchmarking, and a lead-magnet embed widget. Every audit saved to your dashboard.
+
+Built by a 15-year-old developer from Frankfurt. Free plan available. Pro at €49/mo.</div>
+
+</div>
+
+<div class="tpl">
+  <div class="tpl-label">PH First Comment (das wichtigste Feld) <button class="copy-btn" onclick="copyText(this, 'phc')">Kopieren</button></div>
+  <div class="tpl-text" id="phc">Hey Product Hunt! 👋
+
+I’m Theodor, 15 years old, building AuditFlow alongside school in Frankfurt, Germany.
+
+I got frustrated watching SEO agencies spend hours manually checking websites for clients — copy-pasting Lighthouse scores into Word docs, screenshot by screenshot. There had to be a better way.
+
+So I built AuditFlow: one URL in, one professional report out. SEO depth, performance forensics, security headers, WCAG accessibility — all in one place. White-label PDF so agencies can hand it directly to clients.
+
+What makes it different:
+→ Competitive benchmarking (your site vs. competitor side by side)
+→ Prioritized action checklist — not just raw scores
+→ Lead-magnet embed widget for agency websites
+→ Supabase-powered dashboard with full audit history
+
+Free plan available. Would love your feedback — especially from anyone running an SEO or web agency. What’s missing? What would make this part of your workflow?</div>
+
+</div>
+
+<div class="tpl">
+  <div class="tpl-label">PH Launch Tags (diese 3 auswählen) <button class="copy-btn" onclick="copyText(this, 'phta')">Kopieren</button></div>
+  <div class="tpl-text" id="phta">1. Marketing & Sales
+2. Engineering & Development
+3. Productivity</div>
+</div>
+
+</div><!-- end ph -->
+
+<script>
+function show(id){
+  document.querySelectorAll('.sec').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(el=>el.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+function copyText(btn, id){
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✓ Kopiert!';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Kopieren';btn.classList.remove('copied');},2000);
+  });
+}
+</script>
+
+</body>
+</html>

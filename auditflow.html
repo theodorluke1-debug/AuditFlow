@@ -1506,20 +1506,8 @@
     // 14. Favicon Check
     if (!doc.querySelector('link[rel*="icon"]')) F.ux.push({l:'w',m:'Favicon fehlt'});
 
-    // --- NEW FEATURES ---
-    
-    // 35. Mobile-Optimierungs-Check (Viewport & Touch)
-    const viewport = gm('viewport');
-    if (!viewport) F.ux.push({l:'e',m:'Mobile: Kein Viewport-Meta'});
-    else if (viewport.includes('user-scalable=no')) F.ux.push({l:'w',m:'Mobile: Zoom blockiert'});
-    else F.ux.push({l:'o',m:'Mobile: Viewport optimiert'});
-
-    // 36. Social-Media-Vorschau (OG-Tags)
-    const ogTitle = gm('og:title');
-    const ogImg = gm('og:image');
-    if (ogTitle && ogImg) F.seo.push({l:'o',m:'Social Preview: Vollständig'});
-    else if (ogTitle || ogImg) F.seo.push({l:'w',m:'Social Preview: Unvollständig'});
-    else F.seo.push({l:'e',m:'Social Preview: Fehlt'});
+    // --- UX ---
+    if (!gm('viewport')) F.ux.push({l:'e',m:'Kein Viewport-Meta'});
 
     return { doc, findings:F, kd:kwDensity(doc.body?.innerText || ''), title, canonical, metaDesc:desc };
   }
@@ -1835,6 +1823,7 @@
     // Lighthouse heuristic (erweitert auf 8 Karten)
     const lhGrid = $('lighthouseGrid');
     if (lhGrid) {
+      const a11y = scoreA11y(htmlRaw);
       const lh = [
         {label:'Performance', v:data.dimensions.performance},
         {label:'SEO', v:data.dimensions.seo},
@@ -2082,23 +2071,7 @@
   });
 
   // ── EVENTS ───────────────────────────────────────────
-  // Sicherstellen, dass der Knopf immer funktioniert
-  const auditBtn = $('btnAudit');
-  if (auditBtn) {
-    auditBtn.onclick = (e) => {
-      e.preventDefault();
-      debug('Audit button clicked');
-      performAudit();
-    };
-  }
-  
-  // Auch für den CTA in der Nav
-  $('btnNavCta')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    window.scrollTo({top: 0, behavior: 'smooth'});
-    $('dashUrl')?.focus();
-  });
-
+  $('btnAudit')?.addEventListener('click', performAudit);
   $('btnPrint')?.addEventListener('click', () => window.print());
   $('btnPdf')?.addEventListener('click', exportPdf);
   $('btnSave')?.addEventListener('click', async () => {

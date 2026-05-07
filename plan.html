@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>AuditFlow — 30-Tage Plan</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#c8c8c0;padding:1.5rem 1rem;min-height:100vh;}
+h1{font-size:20px;font-weight:600;color:#fff;margin-bottom:3px;letter-spacing:-0.4px;}
+.sub{font-size:11px;color:#444;margin-bottom:1.5rem;line-height:1.5;}
+
+/* Week tabs */
+.wtabs{display:flex;gap:4px;margin-bottom:1.25rem;background:#0d0d0d;border:1px solid #1a1a18;border-radius:9px;padding:3px;}
+.wtab{flex:1;padding:8px 4px;font-size:11px;border:none;border-radius:6px;cursor:pointer;background:none;color:#444;font-weight:500;transition:all 0.15s;text-align:center;line-height:1.3;}
+.wtab.active{background:#1a2a0a;color:#c8f135;border:1px solid #2a4010;}
+
+/* Week content */
+.week{display:none;}
+.week.active{display:block;}
+
+.week-header{background:#111;border:1px solid #1a1a18;border-radius:10px;padding:1rem 1.1rem;margin-bottom:1rem;}
+.wh-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:4px;}
+.wh-goal{font-size:12px;color:#7aaa3a;margin-bottom:6px;}
+.wh-time{font-size:11px;color:#444;}
+
+/* Tasks */
+.task{background:#111;border:1px solid #1a1a18;border-radius:9px;padding:0.8rem 1rem;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;}
+.task-num{min-width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.t-critical{background:#1a0808;color:#E24B4A;border:1px solid #2a1010;}
+.t-important{background:#1a1008;color:#c8821a;border:1px solid #2a2010;}
+.t-normal{background:#0f1a0a;color:#7aaa3a;border:1px solid #1a3010;}
+.t-optional{background:#0d0d0d;color:#555;border:1px solid #1a1a18;}
+.task-body{}
+.task-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:3px;}
+.task-desc{font-size:11px;color:#666;line-height:1.55;margin-bottom:4px;}
+.task-how{font-size:11px;color:#5a8a2a;background:#0d150a;border:1px solid #1a2a10;border-radius:5px;padding:5px 9px;line-height:1.5;}
+.task-time{font-size:10px;color:#333;margin-top:4px;}
+
+/* Impact section */
+.impact{background:#0d0d0d;border:1px solid #1a1a18;border-radius:10px;padding:1rem 1.1rem;margin-top:1rem;}
+.impact-title{font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.75rem;}
+.impact-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.ig{background:#111;border:1px solid #1a1a18;border-radius:7px;padding:0.55rem 0.65rem;text-align:center;}
+.ig-label{font-size:9px;color:#444;margin-bottom:3px;}
+.ig-val{font-size:14px;font-weight:600;}
+.ig-sub{font-size:9px;color:#333;margin-top:1px;}
+
+/* Score comparison */
+.score-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.score-label{font-size:12px;color:#666;min-width:140px;}
+.score-bar-bg{flex:1;height:6px;background:#1a1a18;border-radius:3px;overflow:hidden;}
+.score-bar-fill{height:100%;border-radius:3px;transition:width 0.6s ease;}
+.score-num{font-size:12px;font-weight:600;min-width:36px;text-align:right;}
+
+/* Prognose */
+.prog-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:0.75rem;}
+.pg{background:#111;border:1px solid #1a1a18;border-radius:8px;padding:0.75rem;}
+.pg-period{font-size:10px;color:#444;margin-bottom:4px;}
+.pg-without{font-size:13px;color:#555;text-decoration:line-through;}
+.pg-with{font-size:16px;font-weight:600;color:#c8f135;}
+.pg-diff{font-size:10px;color:#7aaa3a;margin-top:2px;}
+
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:0.75rem;font-size:10px;color:#444;}
+.leg{display:flex;align-items:center;gap:4px;}
+.leg-dot{width:8px;height:8px;border-radius:50%;}
+</style>
+
+</head>
+<body>
+
+<h1>AuditFlow — 30-Tage Aktionsplan</h1>
+<p class="sub">Theodor · 15 Jahre · Aktueller Score: 8.3/10 · Aktueller MRR: €0 · Ziel nach 30 Tagen: Erster zahlender Kunde</p>
+
+<div class="wtabs">
+  <button class="wtab active" onclick="setW(0)">Woche 1<br><span style="color:#E24B4A;font-size:10px;">Fundament</span></button>
+  <button class="wtab" onclick="setW(1)">Woche 2<br><span style="color:#EF9F27;font-size:10px;">Vorbereitung</span></button>
+  <button class="wtab" onclick="setW(2)">Woche 3<br><span style="color:#534AB7;font-size:10px;">Launch</span></button>
+  <button class="wtab" onclick="setW(3)">Woche 4<br><span style="color:#1D9E75;font-size:10px;">Wachstum</span></button>
+  <button class="wtab" onclick="setW(4)">Auswirkung<br><span style="color:#c8f135;font-size:10px;">Prognose</span></button>
+</div>
+
+<!-- WOCHE 1 -->
+
+<div class="week active" id="w0">
+  <div class="week-header">
+    <div class="wh-title">Woche 1 — Das Fundament legen</div>
+    <div class="wh-goal">Ziel: Alle Launch-Blocker beseitigen. Nach dieser Woche kann jemand kaufen.</div>
+    <div class="wh-time">Zeitaufwand: ~3–4 Stunden gesamt · Tag 1–7</div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-critical">1</div>
+    <div class="task-body">
+      <div class="task-title">Stripe einrichten</div>
+      <div class="task-desc">Das ist der einzige echte Blocker. Solange Stripe nicht live ist, verdienst du €0 egal wie gut alles andere ist.</div>
+      <div class="task-how">→ Mit Eltern besprechen (Zustimmung als Erziehungsberechtigte nötig) → stripe.com → Account → 2 Payment Links erstellen (€49/Mo Pro + €99 LTD) → URLs in index.html ersetzen</div>
+      <div class="task-time">Aufwand: 30–60 Min · Tag 1–2</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-critical">2</div>
+    <div class="task-body">
+      <div class="task-title">3 echte Testimonials einholen</div>
+      <div class="task-desc">Platzhalter-Zitate auf der Website zerstören sofort das Vertrauen. 3 echte Sätze von echten Menschen ändern das komplett.</div>
+      <div class="task-how">→ 3 Personen per WhatsApp anschreiben die eine Website haben (Freunde, Familie, Lehrer) → "Kannst du kurz auditflow testen und mir sagen was du siehst?" → Antwort = Testimonial</div>
+      <div class="task-time">Aufwand: 1 Stunde · Tag 2–3</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-critical">3</div>
+    <div class="task-body">
+      <div class="task-title">Formspree einrichten</div>
+      <div class="task-desc">Das Kontaktformular sendet aktuell keine Nachrichten. Support-Anfragen gehen verloren.</div>
+      <div class="task-how">→ formspree.io → kostenlosen Account → neues Formular → Code kopieren → in index.html eintragen (5 Min)</div>
+      <div class="task-time">Aufwand: 5 Min · Tag 1</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-important">4</div>
+    <div class="task-body">
+      <div class="task-title">LinkedIn Profil fertig machen</div>
+      <div class="task-desc">Profilbild, Headline, About-Section. Ohne vollständiges Profil hat der Launch-Post keine Wirkung.</div>
+      <div class="task-how">→ Echtes Foto (gutes Licht) → Headline: "Building AuditFlow | 15 y/o Developer from Frankfurt" → About: 3–4 Sätze was du baust und warum</div>
+      <div class="task-time">Aufwand: 30 Min · Tag 1–2</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-important">5</div>
+    <div class="task-body">
+      <div class="task-title">OG-Bild erstellen</div>
+      <div class="task-desc">Ohne Vorschaubild sieht der Link auf Product Hunt und LinkedIn kaputt aus. Kostet massiv Klicks.</div>
+      <div class="task-how">→ canva.com → 1200×630px → dunkler Hintergrund → "AuditFlow" groß → Tagline darunter → als og-image.png ins Repo</div>
+      <div class="task-time">Aufwand: 20 Min · Tag 3</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-important">6</div>
+    <div class="task-body">
+      <div class="task-title">Embed-Widget URL korrigieren</div>
+      <div class="task-desc">Das Embed-Snippet zeigt auf auditflow.io — diese Domain existiert nicht. Jeder der es ausprobiert bekommt einen Fehler.</div>
+      <div class="task-how">→ In index.html den Embed-Snippet-Code suchen → URL von "https://auditflow.io/embed.html" auf die GitHub Pages URL ändern</div>
+      <div class="task-time">Aufwand: 5 Min · Tag 2</div>
+    </div>
+  </div>
+
+  <div class="impact">
+    <div class="impact-title">Was nach Woche 1 besser ist</div>
+    <div class="score-row"><span class="score-label">Website-Score</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:95%;background:#c8f135;"></div></div><span class="score-num" style="color:#c8f135;">9.5/10</span></div>
+    <div class="score-row"><span class="score-label">Kann jemand kaufen?</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:100%;background:#1D9E75;"></div></div><span class="score-num" style="color:#1D9E75;">JA</span></div>
+    <div class="score-row"><span class="score-label">Vertrauen</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:90%;background:#1D9E75;"></div></div><span class="score-num">9/10</span></div>
+  </div>
+</div>
+
+<!-- WOCHE 2 -->
+
+<div class="week" id="w1">
+  <div class="week-header">
+    <div class="wh-title">Woche 2 — Launch vorbereiten</div>
+    <div class="wh-goal">Ziel: Product Hunt Eintrag fertig, LinkedIn warm machen, X-Account erstellen.</div>
+    <div class="wh-time">Zeitaufwand: ~2–3 Stunden gesamt · Tag 8–14</div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-important">7</div>
+    <div class="task-body">
+      <div class="task-title">X/Twitter Account erstellen</div>
+      <div class="task-desc">Product Hunt verlangt einen X-Account. Ohne X wirkt der Launch unprofessionell.</div>
+      <div class="task-how">→ x.com → @auditflow_io → Profilbild (AuditFlow Logo) → Bio: "Web Intelligence for Agencies. Built by a 15y/o. 🇩🇪" → erste 3 Posts: kurze Einführung zu AuditFlow</div>
+      <div class="task-time">Aufwand: 20 Min · Tag 8</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-important">8</div>
+    <div class="task-body">
+      <div class="task-title">Product Hunt Eintrag vollständig ausfüllen</div>
+      <div class="task-desc">Name, Tagline, Description, First Comment — alles haben wir bereits vorbereitet. Nur noch eintragen.</div>
+      <div class="task-how">→ producthunt.com → Submit → Texte aus dem vorbereiteten Dokument einfügen → Screenshots vom Dashboard als Bilder hochladen → noch NICHT submitten</div>
+      <div class="task-time">Aufwand: 30 Min · Tag 8–9</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-important">9</div>
+    <div class="task-body">
+      <div class="task-title">LinkedIn täglich 5–10 Kommentare</div>
+      <div class="task-desc">Profil aufwärmen bevor der große Post kommt. Suche nach Posts von SEO-Agenturen und kommentiere echte Meinungen.</div>
+      <div class="task-how">→ Suche: "SEO agency", "website audit", "web performance" → kommentiere bei 5–10 Posts täglich mit echten kurzen Meinungen → niemals "toller Post!"</div>
+      <div class="task-time">Aufwand: 15 Min täglich · Tag 8–14</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-normal">10</div>
+    <div class="task-body">
+      <div class="task-title">Demo-Video aufnehmen (60 Sekunden)</div>
+      <div class="task-desc">Ein kurzes Video das zeigt wie ein Audit abläuft. Für Product Hunt Bilder-Sektion und LinkedIn-Post.</div>
+      <div class="task-how">→ OBS (kostenlos) oder QuickTime → URL eingeben → Audit starten → Ergebnisse zeigen → als MP4 exportieren → auf YouTube als "unlisted" hochladen</div>
+      <div class="task-time">Aufwand: 30 Min · Tag 10–11</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-normal">11</div>
+    <div class="task-body">
+      <div class="task-title">Analytics einbinden</div>
+      <div class="task-desc">Du musst nach dem Launch wissen woher die Besucher kommen und was sie klicken.</div>
+      <div class="task-how">→ plausible.io oder umami.is (beide DSGVO-konform, kostenlos für kleine Sites) → Script-Tag in index.html einfügen → fertig</div>
+      <div class="task-time">Aufwand: 10 Min · Tag 12</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-normal">12</div>
+    <div class="task-body">
+      <div class="task-title">50 Personen für Launch-Tag vorbereiten</div>
+      <div class="task-desc">Product Hunt-Algorithmus belohnt frühe Votes. Du brauchst 20–50 Personen die am Launch-Tag voten.</div>
+      <div class="task-how">→ Liste erstellen: Freunde, Familie, Klassenkameraden, Online-Bekannte → WhatsApp-Nachricht vorbereiten: "Ich launche nächste Woche — kannst du kurz für mich voten?" → noch nicht senden</div>
+      <div class="task-time">Aufwand: 30 Min · Tag 13</div>
+    </div>
+  </div>
+
+  <div class="impact">
+    <div class="impact-title">Was nach Woche 2 besser ist</div>
+    <div class="score-row"><span class="score-label">Launch-Bereitschaft</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:95%;background:#534AB7;"></div></div><span class="score-num" style="color:#534AB7;">95%</span></div>
+    <div class="score-row"><span class="score-label">Sichtbarkeit</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:60%;background:#EF9F27;"></div></div><span class="score-num">60%</span></div>
+    <div class="score-row"><span class="score-label">Community</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:30%;background:#378ADD;"></div></div><span class="score-num">wächst</span></div>
+  </div>
+</div>
+
+<!-- WOCHE 3 -->
+
+<div class="week" id="w2">
+  <div class="week-header">
+    <div class="wh-title">Woche 3 — Launch-Woche</div>
+    <div class="wh-goal">Ziel: LinkedIn-Post + Product Hunt Launch. Erste Nutzer, erste Registrierungen, erste Käufer.</div>
+    <div class="wh-time">Zeitaufwand: ~3–4 Stunden · Das ist die wichtigste Woche</div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-critical">13</div>
+    <div class="task-body">
+      <div class="task-title">LinkedIn-Post veröffentlichen</div>
+      <div class="task-desc">Dienstag oder Mittwoch, 8–10 Uhr morgens. Der Text ist fertig — einfach posten.</div>
+      <div class="task-how">→ Deutschen oder englischen Post (beide sind fertig) kopieren → auf LinkedIn einfügen → posten → sofort alle Kontakte per WhatsApp anschreiben "kannst du kurz liken/kommentieren?"</div>
+      <div class="task-time">Tag 15 (Dienstag oder Mittwoch) · Morgens 8–10 Uhr</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-critical">14</div>
+    <div class="task-body">
+      <div class="task-title">Jeden Kommentar innerhalb 2 Stunden beantworten</div>
+      <div class="task-desc">LinkedIn-Algorithmus pusht Posts die viele Kommentare haben. Jede Antwort von dir zählt als weiterer Kommentar.</div>
+      <div class="task-how">→ Handy in der Nähe halten → jeden Kommentar mit echter Antwort beantworten → bei Agenturen die kommentieren: direkt fragen "Was wäre für euch das wichtigste Feature?"</div>
+      <div class="task-time">Tag 15 — ganzer Tag verfügbar sein</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-critical">15</div>
+    <div class="task-body">
+      <div class="task-title">Product Hunt Launch submitten</div>
+      <div class="task-desc">PH-Launches gehen immer um Mitternacht Pacific Time live (= 9 Uhr morgens Deutschland). Am besten Tag nach LinkedIn-Post.</div>
+      <div class="task-how">→ PH-Eintrag final prüfen → submitten → alle 50 Personen von der Liste per WhatsApp benachrichtigen → X-Post mit Link → den ganzen Tag Kommentare auf PH beantworten</div>
+      <div class="task-time">Tag 16–17 · Den ganzen Tag aktiv bleiben</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-important">16</div>
+    <div class="task-body">
+      <div class="task-title">Feedback sammeln und sofort umsetzen</div>
+      <div class="task-desc">Die ersten 48 Stunden nach Launch sind die wertvollsten für Feedback. Nutze das.</div>
+      <div class="task-how">→ Jeden der sich registriert persönlich anschreiben (Supabase → Authentication → Users) → "Hey, ich bin Theodor — was hat funktioniert, was nicht?" → Top 3 Bugs sofort fixen</div>
+      <div class="task-time">Tag 17–19 · Täglich 30 Min</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-important">17</div>
+    <div class="task-body">
+      <div class="task-title">Ersten "Build in Public" Update-Post auf LinkedIn</div>
+      <div class="task-desc">2–3 Tage nach Launch: wie war der Launch? Zahlen teilen. Authentic. Das baut die Community weiter auf.</div>
+      <div class="task-how">→ "48h nach dem Launch: X Registrierungen, Y Kommentare, das habe ich gelernt..." → ehrlich und persönlich → wieder alle Kommentare beantworten</div>
+      <div class="task-time">Tag 18–19</div>
+    </div>
+  </div>
+
+  <div class="impact">
+    <div class="impact-title">Was nach Woche 3 besser ist</div>
+    <div class="score-row"><span class="score-label">Erste Nutzer</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:80%;background:#534AB7;"></div></div><span class="score-num">20–100</span></div>
+    <div class="score-row"><span class="score-label">Erste Käufer (wenn Stripe live)</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:30%;background:#1D9E75;"></div></div><span class="score-num">1–5</span></div>
+    <div class="score-row"><span class="score-label">Internationale Sichtbarkeit</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:70%;background:#378ADD;"></div></div><span class="score-num">hoch</span></div>
+  </div>
+</div>
+
+<!-- WOCHE 4 -->
+
+<div class="week" id="w3">
+  <div class="week-header">
+    <div class="wh-title">Woche 4 — Momentum halten</div>
+    <div class="wh-goal">Ziel: Erste zahlende Kunden konvertieren, Feedback umsetzen, AppSumo vorbereiten.</div>
+    <div class="wh-time">Zeitaufwand: ~2–3 Stunden · Tag 22–30</div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-important">18</div>
+    <div class="task-body">
+      <div class="task-title">Free-Nutzer persönlich anschreiben</div>
+      <div class="task-desc">Nutzer im Free-Plan persönlich fragen warum sie noch nicht upgraden. Das ist die wertvollste Information die du haben kannst.</div>
+      <div class="task-how">→ Supabase → Users → E-Mail der ersten 20 Nutzer → kurze persönliche E-Mail: "Hey, ich bin Theodor — was fehlt dir für ein Upgrade?" → Antworten analysieren</div>
+      <div class="task-time">Aufwand: 30 Min · Tag 22–23</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-important">19</div>
+    <div class="task-body">
+      <div class="task-title">Top 3 Feedback-Punkte umsetzen</div>
+      <div class="task-desc">Was am häufigsten genannt wird sofort fixen. Nichts baut Vertrauen schneller als "ich habe euer Feedback umgesetzt."</div>
+      <div class="task-how">→ Feedback aus PH, LinkedIn und E-Mails sammeln → top 3 häufigste Probleme → mit Cursor fixen → Update-Post auf LinkedIn</div>
+      <div class="task-time">Aufwand: 1–2 Stunden · Tag 23–25</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-important">20</div>
+    <div class="task-body">
+      <div class="task-title">AppSumo Deal einreichen</div>
+      <div class="task-desc">AppSumo Review dauert ~4 Wochen. Jetzt einreichen = in 4 Wochen live. Das ist der zweite große Umsatz-Spike.</div>
+      <div class="task-how">→ appsumo.com/partners → "Submit a Deal" → Produktbeschreibung, Screenshots, Demo-Video hochladen → €99 LTD als Deal-Preis → warten</div>
+      <div class="task-time">Aufwand: 1 Stunde · Tag 24–25</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-normal">21</div>
+    <div class="task-body">
+      <div class="task-title">Loops.so einrichten (Feedback-E-Mail Automatisierung)</div>
+      <div class="task-desc">Automatische Feedback-E-Mail 3 Tage nach Registrierung. Das Template ist bereits fertig.</div>
+      <div class="task-how">→ loops.so → kostenloser Account → Supabase-Integration aktivieren → Feedback-E-Mail-Template einfügen → "Day 3" Trigger einrichten</div>
+      <div class="task-time">Aufwand: 30 Min · Tag 26</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-normal">22</div>
+    <div class="task-body">
+      <div class="task-title">Wöchentlicher "Build in Public" Post auf LinkedIn</div>
+      <div class="task-desc">Jeden Mittwoch 1 kurzer Update. Was hast du gebaut, was hast du gelernt, welche Zahlen kannst du teilen?</div>
+      <div class="task-how">→ "Woche X von AuditFlow: X Nutzer, X Audits, das war die wichtigste Lektion..." → ehrlich, kurz, persönlich → Community wächst mit jedem Post</div>
+      <div class="task-time">Aufwand: 15 Min wöchentlich · ab Tag 22</div>
+    </div>
+  </div>
+
+  <div class="task">
+    <div class="task-num t-optional">23</div>
+    <div class="task-body">
+      <div class="task-title">Domain auditflow.io kaufen + Vercel einrichten</div>
+      <div class="task-desc">Professionelle Domain. Erst nach dem Launch sinnvoll — dann weißt du dass das Projekt tatsächlich Nutzer hat.</div>
+      <div class="task-how">→ namecheap.com → auditflow.io (~€10/Jahr) → vercel.com → Repo importieren → Custom Domain einstellen → DNS bei Namecheap anpassen</div>
+      <div class="task-time">Aufwand: 1 Stunde · Tag 28–30 (optional)</div>
+    </div>
+  </div>
+
+  <div class="impact">
+    <div class="impact-title">Was nach Woche 4 besser ist</div>
+    <div class="score-row"><span class="score-label">Produkt-Score</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:96%;background:#c8f135;"></div></div><span class="score-num" style="color:#c8f135;">9.6/10</span></div>
+    <div class="score-row"><span class="score-label">Erste MRR</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:50%;background:#1D9E75;"></div></div><span class="score-num">€0–500</span></div>
+    <div class="score-row"><span class="score-label">AppSumo in Review</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:100%;background:#EF9F27;"></div></div><span class="score-num">✓</span></div>
+  </div>
+</div>
+
+<!-- AUSWIRKUNG -->
+
+<div class="week" id="w4">
+  <div style="background:#0d150a;border:1px solid #2a4010;border-radius:10px;padding:1rem 1.1rem;margin-bottom:1rem;">
+    <div style="font-size:13px;font-weight:600;color:#c8f135;margin-bottom:6px;">Was dieser 30-Tage-Plan bewirkt</div>
+    <div style="font-size:12px;color:#7aaa3a;line-height:1.6;">
+      Wenn du alle 23 Aufgaben erledigst, gehst du von 8.3/10 auf 9.6/10 — und von €0 MRR auf erste zahlende Kunden. Das ist der Unterschied zwischen einem Demo-Projekt und einem echten Produkt.
+    </div>
+  </div>
+
+  <div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.75rem;">Score-Verbesserung nach 30 Tagen</div>
+
+  <div class="score-row"><span class="score-label">Gesamt (heute: 8.3)</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:96%;background:#c8f135;"></div></div><span class="score-num" style="color:#c8f135;">9.6</span></div>
+  <div class="score-row"><span class="score-label">Conversion (heute: 2)</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:90%;background:#1D9E75;"></div></div><span class="score-num">9.0</span></div>
+  <div class="score-row"><span class="score-label">Vertrauen (heute: 7)</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:95%;background:#1D9E75;"></div></div><span class="score-num">9.5</span></div>
+  <div class="score-row"><span class="score-label">Sichtbarkeit (heute: 3)</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:80%;background:#534AB7;"></div></div><span class="score-num">8.0</span></div>
+  <div class="score-row" style="margin-top:4px;"><span class="score-label">Launch-Bereitschaft</span><div class="score-bar-bg"><div class="score-bar-fill" style="width:100%;background:#c8f135;"></div></div><span class="score-num" style="color:#c8f135;">100%</span></div>
+
+  <div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin:1.25rem 0 0.75rem;">Umsatz-Auswirkung</div>
+
+  <div style="font-size:11px;color:#444;margin-bottom:0.75rem;">Vergleich: Plan NICHT umsetzen vs. Plan vollständig umsetzen</div>
+
+  <div class="prog-grid">
+    <div class="pg">
+      <div class="pg-period">Nach 3 Monaten</div>
+      <div class="pg-without">€0–98</div>
+      <div class="pg-with">€1.500–3.500</div>
+      <div class="pg-diff">+€1.400–3.400/Mo</div>
+    </div>
+    <div class="pg">
+      <div class="pg-period">Nach 5 Monaten (Kanada)</div>
+      <div class="pg-without">€0–200</div>
+      <div class="pg-with">€2.500–6.000</div>
+      <div class="pg-diff">+€2.300–5.800/Mo</div>
+    </div>
+    <div class="pg">
+      <div class="pg-period">Nach 1 Jahr</div>
+      <div class="pg-without">€200–500</div>
+      <div class="pg-with">€4.000–8.000</div>
+      <div class="pg-diff">+€3.500–7.500/Mo</div>
+    </div>
+    <div class="pg">
+      <div class="pg-period">Nach 2 Jahren</div>
+      <div class="pg-without">€500–1.000</div>
+      <div class="pg-with">€8.000–20.000</div>
+      <div class="pg-diff">+€7.500–19.000/Mo</div>
+    </div>
+  </div>
+
+  <div style="background:#111;border:1px solid #1a1a18;border-radius:9px;padding:0.85rem 1rem;margin-top:1rem;">
+    <div style="font-size:12px;font-weight:600;color:#fff;margin-bottom:8px;">Kumulativer Unterschied über 2 Jahre</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div style="background:#1a0808;border:1px solid #2a1010;border-radius:7px;padding:0.65rem;text-align:center;">
+        <div style="font-size:10px;color:#555;margin-bottom:4px;">Ohne Plan</div>
+        <div style="font-size:18px;font-weight:700;color:#E24B4A;">~€3.000</div>
+        <div style="font-size:10px;color:#333;">gesamt in 2 Jahren</div>
+      </div>
+      <div style="background:#0f1a0a;border:1px solid #2a4010;border-radius:7px;padding:0.65rem;text-align:center;">
+        <div style="font-size:10px;color:#7aaa3a;margin-bottom:4px;">Mit Plan</div>
+        <div style="font-size:18px;font-weight:700;color:#c8f135;">~€120.000</div>
+        <div style="font-size:10px;color:#5a8a2a;">gesamt in 2 Jahren</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:#111;border:1px solid #1a1a18;border-radius:9px;padding:0.85rem 1rem;margin-top:0.75rem;">
+    <div style="font-size:12px;font-weight:600;color:#fff;margin-bottom:6px;">Die 3 wichtigsten Einzelmaßnahmen nach Wirkung</div>
+    <div style="font-size:12px;color:#888;margin-bottom:4px;">① <span style="color:#c8f135;">Stripe einrichten</span> — macht überhaupt erst Umsatz möglich. Wert: unbezahlbar.</div>
+    <div style="font-size:12px;color:#888;margin-bottom:4px;">② <span style="color:#c8f135;">Product Hunt Launch</span> — bringt internationale Sichtbarkeit in einer Nacht. Wert: €15.000–50.000 über 2 Jahre.</div>
+    <div style="font-size:12px;color:#888;">③ <span style="color:#c8f135;">AppSumo einreichen</span> — einmaliger LTD-Spike + dauerhafter Social Proof. Wert: €3.000–8.000 einmalig.</div>
+  </div>
+
+  <div style="margin-top:0.75rem;font-size:11px;color:#333;text-align:center;line-height:1.6;">
+    Alle Zahlen sind Projektionen basierend auf vergleichbaren Solo-SaaS-Launches auf PH + AppSumo.<br/>
+    Stripe-Eltern-Situation ist der einzige Faktor der alles blockieren kann — das Gespräch ist Priorität #1.
+  </div>
+</div>
+
+<script>
+function setW(i){
+  document.querySelectorAll('.wtab').forEach((el,idx)=>el.classList.toggle('active',idx===i));
+  document.querySelectorAll('.week').forEach((el,idx)=>el.classList.toggle('active',idx===i));
+}
+</script>
+
+</body>
+</html>
